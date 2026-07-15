@@ -50,12 +50,16 @@ class Particle {
 
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    ctx.globalAlpha = this.alpha;
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = this.color;
+    
+    // Vẽ quầng sáng tỏa nhẹ (bloom glow) - nhanh gấp 10 lần shadowBlur của Canvas
+    ctx.globalAlpha = this.alpha * 0.25;
     ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 2.2, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Vẽ điểm sáng hạt pháo
+    // Vẽ lõi hạt pháo sáng
+    ctx.globalAlpha = this.alpha;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
@@ -122,11 +126,16 @@ class Rocket {
 
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = this.color;
+    
+    // Vẽ quầng sáng tỏa đầu quả đạn pháo
+    ctx.globalAlpha = 0.3;
     ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 4.5, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Vẽ đầu quả pháo
+    // Vẽ nhân quả đạn pháo
+    ctx.globalAlpha = 1.0;
     ctx.beginPath();
     ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
     ctx.fill();
@@ -225,6 +234,11 @@ export default function Fireworks() {
           }
           rockets.splice(i, 1);
         }
+      }
+
+      // Giới hạn số lượng hạt tối đa để đảm bảo hiệu năng cực mượt trên di động
+      while (particles.length > 250) {
+        particles.shift();
       }
 
       // Cập nhật & Vẽ các hạt tàn pháo hoa
