@@ -20,6 +20,35 @@ interface HeroSectionProps {
 export default function HeroSection({ showParticles = false }: HeroSectionProps) {
   const fullText = `Lễ Tốt Nghiệp của ${STUDENT.name}`;
 
+  const [displayText, setDisplayText] = useState("");
+  const [showCursor, setShowCursor] = useState(true);
+
+  useEffect(() => {
+    let currentIndex = 0;
+    let timeoutId: NodeJS.Timeout;
+
+    const typeCharacter = () => {
+      if (currentIndex <= fullText.length) {
+        setDisplayText(fullText.slice(0, currentIndex));
+
+        currentIndex++;
+
+        // Gõ chậm lúc đầu, nhanh hơn về sau
+        const speed = currentIndex < 6 ? 110 : 55;
+
+        timeoutId = setTimeout(typeCharacter, speed);
+      } else {
+        setTimeout(() => {
+          setShowCursor(false);
+        }, 1000);
+      }
+    };
+
+    typeCharacter();
+
+    return () => clearTimeout(timeoutId);
+  }, [fullText]);
+
   const sentenceVariants = {
     hidden: { opacity: 1 },
     visible: {
@@ -101,24 +130,40 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
         </motion.p>
 
         {/* Typing Title */}
-        <motion.div className="mb-8">
-          <motion.h1
-            variants={sentenceVariants}
-            initial="hidden"
-            animate="visible"
-            className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold leading-tight"
-          >
-            {fullText.split("").map((char, index) => (
+        {/* Typing Title */}
+        <motion.div
+          className="mb-8"
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          transition={{
+            duration: 0.8,
+          }}
+        >
+          <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-gradient">
+            {displayText}
+
+            {showCursor && (
               <motion.span
-                key={char + "-" + index}
-                variants={letterVariants}
-                className="inline-block text-gradient"
-                style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+                className="inline-block ml-1 text-accent"
+                animate={{
+                  opacity: [1, 0, 1],
+                }}
+                transition={{
+                  duration: 0.8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
               >
-                {char}
+                |
               </motion.span>
-            ))}
-          </motion.h1>
+            )}
+          </h1>
         </motion.div>
 
         {/* Student Info */}
