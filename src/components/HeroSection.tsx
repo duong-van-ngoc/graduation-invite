@@ -13,9 +13,12 @@ import {
   scaleIn,
 } from "@/lib/animation";
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  showParticles?: boolean;
+}
+
+export default function HeroSection({ showParticles = false }: HeroSectionProps) {
   const [typedText, setTypedText] = useState("");
-  const [showCursor, setShowCursor] = useState(true);
   const fullText = `Lễ Tốt Nghiệp của ${STUDENT.name}`;
 
   const handleScrollToCard = () => {
@@ -25,7 +28,7 @@ export default function HeroSection() {
     }
   };
 
-  // Typing effect
+  // Hiệu ứng gõ chữ từ từ từng chữ cái một (Slower character-by-character typing effect)
   useEffect(() => {
     let currentIndex = 0;
     const typingInterval = setInterval(() => {
@@ -34,26 +37,16 @@ export default function HeroSection() {
         currentIndex++;
       } else {
         clearInterval(typingInterval);
-        // Blink cursor after typing completes
-        setTimeout(() => setShowCursor(false), 2000);
       }
-    }, 80);
+    }, 140); // Gõ từ từ mỗi chữ cái cách nhau 140ms
 
     return () => clearInterval(typingInterval);
   }, [fullText]);
 
-  // Cursor blink
-  useEffect(() => {
-    const blinkInterval = setInterval(() => {
-      setShowCursor((prev) => !prev);
-    }, 530);
-    return () => clearInterval(blinkInterval);
-  }, []);
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Particle Background */}
-      <ParticlesBackground />
+      {showParticles && <ParticlesBackground />}
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary to-primary z-[1]" />
@@ -63,7 +56,7 @@ export default function HeroSection() {
 
       {/* Content */}
       <motion.div
-        className="relative z-10 text-center px-6 max-w-4xl mx-auto"
+        className="relative z-40 text-center px-6 max-w-4xl mx-auto"
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
@@ -104,10 +97,6 @@ export default function HeroSection() {
         <motion.div variants={fadeIn} className="mb-8">
           <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
             <span className="text-gradient">{typedText}</span>
-            <span
-              className={`inline-block w-[3px] h-[1em] bg-accent ml-1 align-middle transition-opacity duration-100 ${showCursor ? "opacity-100" : "opacity-0"
-                }`}
-            />
           </h1>
         </motion.div>
 
@@ -137,17 +126,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* CTA Button */}
-        <motion.div variants={fadeInUp}>
-          <button
-            onClick={handleScrollToCard}
-            className="group relative inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-accent to-accent-dark text-primary font-bold text-lg rounded-full overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(250,204,21,0.4)] hover:scale-105 active:scale-95"
-          >
-            {/* Shimmer overlay */}
-            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer bg-[length:200%_100%]" />
-            <span className="relative">Khám Phá Thiệp Mời</span>
-            <span className="relative text-xl">✨</span>
-          </button>
-        </motion.div>
+
 
         {/* Scroll indicator */}
         <motion.div

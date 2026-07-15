@@ -7,15 +7,22 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 // Phase flow:
-// idle     → phong bì xanh đen nổi, hover nghiêng 3D
-// opening  → nắp phong bì mở ra (1.2s)
-// glowing  → ánh vàng sáng từ bên trong phát ra (0.8s)
-// fading   → phong bì mờ dần, trang chính hiện ra phía sau (1.2s)
-// done     → gọi onComplete()
-type Phase = "idle" | "opening" | "glowing" | "fading" | "done";
+// idle             → phong bì xanh đen nổi, hover nghiêng 3D
+// seal_glowing     → con dấu phát sáng (0.4s)
+// seal_dissolving  → con dấu tan rã thành các hạt bụi vàng (0.5s)
+// opening          → nắp phong bì mở ra (0.8s)
+// fading           → phong bì mờ dần, trang chính hiện ra phía sau (0.8s)
+// done             → gọi onComplete()
+type Phase =
+  | "idle"
+  | "seal_glowing"
+  | "seal_dissolving"
+  | "opening"
+  | "fading"
+  | "done";
 
 interface EnvelopeAnimationProps {
   onComplete: () => void;
@@ -28,10 +35,57 @@ export default function EnvelopeAnimation({
 }: EnvelopeAnimationProps) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [mounted, setMounted] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Sinh các thuộc tính ngẫu nhiên cố định cho 400 hạt bụi để tránh render lại liên tục (tối ưu hóa hiệu năng)
+  const staticParticles = useMemo(() => {
+    return Array.from({ length: 400 }).map((_, i) => {
+      const startX = Math.random() * 100;
+      const size = Math.random() * 2 + 1;
+      const delay = Math.random() * 8;
+      const drift = (Math.random() - 0.5) * 40;
+      const yVariation = Math.random() * 8 - 4;
+      const fallDuration = 3 + Math.random() * 2.5;
+      const normalDuration = 6 + Math.random() * 4;
+      return {
+        id: i,
+        startX,
+        size,
+        delay,
+        drift,
+        yVariation,
+        fallDuration,
+        normalDuration,
+      };
+    });
+  }, []);
+
+  // Sinh các hạt bụi vàng từ con dấu khi nó tan rã (seal_dissolving)
+  const sealParticles = useMemo(() => {
+    return Array.from({ length: 60 }).map((_, i) => {
+      const angle = (i / 60) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+      const velocity = 50 + Math.random() * 120;
+      const size = Math.random() * 3 + 2;
+      const delay = Math.random() * 0.25;
+      return {
+        id: i,
+        angle,
+        velocity,
+        size,
+        delay,
+      };
+    });
   }, []);
 
   // 3D tilt khi hover (chỉ idle)
@@ -57,26 +111,37 @@ export default function EnvelopeAnimation({
 
   const startOpening = () => {
     if (phase !== "idle") return;
-    // Bước 1: Mở nắp (0ms -> 1200ms)
-    setPhase("opening");
 
-    // Bước 2: Khi nắp vừa mở xong (sau 1200ms), hạt bắt đầu bay lên
-    // Chúng ta đợi thêm 1.3 giây nữa (tổng cộng 2500ms từ đầu) cho hạt bay cao và mờ dần,
-    // rồi mới bắt đầu fade out phong bì và hiện trang chính (thiệp mời bắt đầu xuất hiện)
+    // 1. Click con dấu -> Con dấu phát sáng (0ms -> 400ms)
+    setPhase("seal_glowing");
+
+    // 2. Con dấu tan thành hạt vàng (400ms -> 900ms)
+    setTimeout(() => {
+      setPhase("seal_dissolving");
+    }, 400);
+
+    // 3. Nắp phong bì mở ra (900ms -> 1700ms)
+    setTimeout(() => {
+      setPhase("opening");
+    }, 900);
+
+    // 4. Fade out phong bì và hiện Hero Section (1700ms -> 2500ms)
     setTimeout(() => {
       setPhase("fading");
       onStartFading?.();
-    }, 2500);
+    }, 1700);
 
-    // Bước 3: Hoàn tất sau 5000ms (giúp đốm sáng bay lâu hơn)
+    // 5. Hoàn tất (sau 2500ms)
     setTimeout(() => {
       setPhase("done");
       onComplete();
-    }, 5000);
+    }, 6500);
   };
 
-  const isFlapped = phase !== "idle";
-  const isGlowing = phase === "glowing" || phase === "fading" || phase === "done";
+  const isFlapped =
+    phase !== "idle" &&
+    phase !== "seal_glowing" &&
+    phase !== "seal_dissolving";
   const isFading = phase === "fading" || phase === "done";
   const isVisible = phase !== "done";
 
@@ -96,61 +161,113 @@ export default function EnvelopeAnimation({
           />
 
           {/* Lớp hạt bụi đốm sáng bay lên - Nằm ở z-index cao đè lên thiệp mời ở dưới và fade out trễ hơn hẳn */}
+          {/* Lớp hạt bụi vàng */}
           <motion.div
             className="absolute inset-0 overflow-hidden pointer-events-none z-20"
             initial={{ opacity: 1 }}
-            animate={{ opacity: phase === "fading" ? [1, 0.8, 0] : 1 }}
+            animate={{
+              opacity: phase === "fading" ? 0 : 1,
+            }}
             transition={{
-              duration: 2.5,
-              times: [0, 0.5, 1], // Giữ sáng một lúc rồi mới fade out về 0
-              ease: "easeInOut"
+              duration: 1.2,
+              ease: "easeOut",
             }}
           >
-            {Array.from({ length: 120 }).map((_, i) => {
-              const startX = Math.random() * 40 + 30; // Tập trung xung quanh khu vực phong bì (30% - 70%)
-              const delay = Math.random() * 3;
-              const duration = 4.0 + Math.random() * 3; // Bay lâu hơn (4s - 7s)
-              const size = Math.random() * 4 + 2.5; // Kích thước đốm to hơn một chút
-              return (
-                <motion.div
-                  key={i}
-                  className="absolute rounded-full"
-                  style={{
-                    width: size,
-                    height: size,
-                    left: `${startX}%`,
-                    bottom: "20%",
-                    background: "radial-gradient(circle, #FFFFFF 0%, #FFEAA7 40%, #D4AF37 80%, transparent 100%)",
-                    boxShadow: "0 0 12px #FFD700, 0 0 22px #FF9F00, 0 0 35px rgba(255,215,0,0.5)",
-                  }}
-                  animate={
-                    phase !== "idle"
-                      ? {
-                        x: [0, (Math.random() - 0.5) * 200],
-                        y: [0, -320 - Math.random() * 350], // Bay cao hơn nhiều
-                        opacity: [0, 1, 0.7, 0], // Dần dần mờ đi khi bay lên cao
-                        scale: [0.4, 1.4, 0.1],
-                      }
-                      : {
-                        y: [0, -20, 0],
-                        opacity: [0.1, 0.4, 0.1],
-                      }
-                  }
-                  transition={{
-                    duration: phase !== "idle" ? duration : 4 + Math.random() * 4,
-                    repeat: phase !== "idle" ? 0 : Infinity, // Chỉ bay lên 1 lần duy nhất, không lặp lại
-                    delay: phase !== "idle" ? delay : Math.random() * 2,
-                    ease: "easeOut",
-                  }}
-                />
-              );
-            })}
+            {(() => {
+               const isMd = dimensions.width >= 768;
+               const isSm = dimensions.width >= 640;
+               const envelopeWidth = isMd ? 500 : isSm ? 340 : 290;
+               const envelopeHeight = isMd ? 340 : isSm ? 230 : 197;
+              const envelopeLeft = (dimensions.width - envelopeWidth) / 2;
+              const envelopeRight = (dimensions.width + envelopeWidth) / 2;
+              const envelopeTop = (dimensions.height - envelopeHeight) / 2;
+
+              return staticParticles.map((particle) => {
+                const startX = particle.startX;
+                const size = particle.size;
+                const xPos = (startX / 100) * dimensions.width;
+                // Chỉ cho khoảng 35% số hạt bụi nằm trên vùng thư đọng lại (id chia hết cho 3)
+                // Số hạt còn lại vẫn rơi xuyên qua xuống dưới để tránh tạo khoảng trống (hole) ở giữa màn hình.
+                const isAboveEnvelope =
+                  xPos >= envelopeLeft &&
+                  xPos <= envelopeRight &&
+                  particle.id % 3 === 0;
+
+                let yKeyframes: number[];
+                let opacityKeyframes: number[];
+                let scaleKeyframes: number[];
+                let timesKeyframes: number[];
+                let duration: number;
+                let delay = particle.delay;
+
+                const drift = particle.drift;
+                let xKeyframes: number[];
+
+                if (isAboveEnvelope) {
+                  // Đọng lại ở viền trên của thư
+                  // Dịch chuyển y từ -30px (trên cùng) xuống envelopeTop (viền trên)
+                  const yTarget = envelopeTop + particle.yVariation; // Dao động nhẹ quanh viền
+                  const fallDuration = particle.fallDuration; // Thời gian rơi
+                  const stayDuration = 2.0; // Đọng lại trong 2s
+                  const fadeDuration = 0.5; // Biến mất dần trong 0.5s
+                  duration = fallDuration + stayDuration + fadeDuration;
+
+                  const t1 = fallDuration / duration;
+                  const t2 = (fallDuration + stayDuration) / duration;
+
+                  yKeyframes = [-30, yTarget, yTarget, yTarget];
+                  xKeyframes = [0, drift, drift, drift];
+                  opacityKeyframes = [0, 1, 1, 0];
+                  scaleKeyframes = [0.6, 1.0, 1.0, 0.4];
+                  timesKeyframes = [0, t1, t2, 1];
+                } else {
+                  // Rơi thẳng xuống dưới màn hình
+                  const yTarget = dimensions.height + 40;
+                  duration = particle.normalDuration;
+
+                  yKeyframes = [-30, yTarget];
+                  xKeyframes = [0, drift, drift * 1.5];
+                  opacityKeyframes = [0, 1, 1, 0];
+                  scaleKeyframes = [0.6, 1.0, 1.0, 0.4];
+                  timesKeyframes = [0, 0.1, 0.9, 1];
+                }
+
+                return (
+                  <motion.div
+                    key={particle.id}
+                    className="absolute rounded-full"
+                    style={{
+                      width: size,
+                      height: size,
+                      left: `${startX}%`,
+                      top: 0,
+                      background:
+                        "radial-gradient(circle, rgba(255,248,220,1) 0%, rgba(255,220,120,0.85) 50%, transparent 100%)",
+                      boxShadow: "0 0 4px rgba(255,220,120,0.8), 0 0 10px rgba(255,220,120,0.35)",
+                    }}
+                    animate={{
+                      y: yKeyframes,
+                      x: xKeyframes,
+                      opacity: opacityKeyframes,
+                      scale: scaleKeyframes,
+                    }}
+                    transition={{
+                      duration: duration,
+                      repeat: Infinity,
+                      delay: delay,
+                      ease: isAboveEnvelope ? "easeOut" : "linear",
+                      times: timesKeyframes,
+                    }}
+                  />
+                );
+              });
+            })()}
           </motion.div>
 
           {/* ── PHONG BÌ & CAMERA SHAKE ── */}
           <motion.div
             ref={containerRef}
-            className="relative z-10 w-[340px] h-[230px] md:w-[500px] md:h-[340px] cursor-pointer select-none pointer-events-auto"
+            className="relative z-10 w-[290px] h-[197px] sm:w-[340px] sm:h-[230px] md:w-[500px] md:h-[340px] cursor-pointer select-none pointer-events-auto"
             style={
               phase === "idle"
                 ? { rotateX, rotateY, transformStyle: "preserve-3d" }
@@ -165,16 +282,20 @@ export default function EnvelopeAnimation({
                 ? { opacity: 0, scale: 0.95 }
                 : phase === "idle"
                   ? { scale: 1, opacity: 1, y: 0 }
-                  : phase === "opening"
-                    ? {
-                      scale: [1, 1.05, 1.03],
-                      x: [0, -1, 1, -1, 0],
-                      y: [0, 1, -1, 0, 0],
-                      transition: { duration: 1.1 }
-                    }
-                    : { scale: 1.08, opacity: 1 }
+                  : phase === "seal_glowing"
+                    ? { scale: 1.02 }
+                    : phase === "seal_dissolving"
+                      ? { scale: 1.03 }
+                      : phase === "opening"
+                        ? { scale: 1.05 }
+                        : { scale: 1.08, opacity: 1 }
             }
-            transition={{ type: "spring", stiffness: 80, damping: 14, delay: 0.3 }}
+            transition={{
+              type: "spring",
+              stiffness: 80,
+              damping: 14,
+              delay: phase === "idle" ? 0.3 : 0,
+            }}
             whileHover={phase === "idle" ? { scale: 1.04 } : {}}
           >
             {/* LỚP BACK PHONG BÌ (MẶT SAU) */}
@@ -293,6 +414,24 @@ export default function EnvelopeAnimation({
               </svg>
             </div>
 
+            {/* Ánh sáng vàng rò rỉ phát ra từ bên trong khi nắp mở */}
+            {phase === "opening" && (
+              <motion.div
+                className="absolute inset-0 rounded-2xl pointer-events-none"
+                style={{
+                  background: "radial-gradient(circle at 50% 40%, rgba(255, 215, 0, 0.5) 0%, rgba(255, 140, 0, 0.2) 60%, transparent 80%)",
+                  filter: "blur(12px)",
+                  transform: "translateZ(5px)",
+                }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  ease: "easeInOut",
+                }}
+              />
+            )}
+
             {/* Nắp phong bì — xanh đen, xoay mở */}
             <motion.div
               className="absolute top-0 left-0 right-0 h-[50%] pointer-events-none"
@@ -302,7 +441,7 @@ export default function EnvelopeAnimation({
                 translateZ: "12px",
               }}
               animate={isFlapped ? { rotateX: -180 } : { rotateX: 0 }}
-              transition={{ duration: 1.15, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
             >
               <div
                 className="w-full h-full relative overflow-hidden"
@@ -354,14 +493,73 @@ export default function EnvelopeAnimation({
               </div>
             </motion.div>
 
+            {/* Hạt bụi từ con dấu khi tan rã */}
+            {phase === "seal_dissolving" && (
+              <div className="absolute top-[56%] left-[50%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30" style={{ transformStyle: "preserve-3d", transform: "translateZ(25px)" }}>
+                {sealParticles.map((p) => {
+                  const xTarget = Math.cos(p.angle) * p.velocity;
+                  const yTarget = Math.sin(p.angle) * p.velocity;
+                  return (
+                    <motion.div
+                      key={p.id}
+                      className="absolute rounded-full"
+                      style={{
+                        width: p.size,
+                        height: p.size,
+                        left: 0,
+                        top: 0,
+                        background: "radial-gradient(circle, #FFFFFF 0%, #FFEAA7 50%, #D4AF37 100%)",
+                        boxShadow: "0 0 8px #FFD700, 0 0 15px #FF8C00",
+                      }}
+                      initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                      animate={{
+                        x: xTarget,
+                        y: yTarget,
+                        opacity: 0,
+                        scale: 0.2,
+                      }}
+                      transition={{
+                        duration: 0.8 + Math.random() * 0.4,
+                        delay: p.delay,
+                        ease: "easeOut",
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
             <motion.div
               className="absolute top-[56%] left-[50%] -translate-x-1/2 -translate-y-1/2"
               style={{ translateZ: "22px" }}
-              animate={{
-                scale: 1,
-                filter: "drop-shadow(0 5px 12px rgba(0,0,0,0.55))",
+              animate={
+                phase === "seal_glowing"
+                  ? {
+                    scale: [1, 1.25, 1.2],
+                    boxShadow: "0 0 35px rgba(255, 215, 0, 0.9), 0 0 60px rgba(255, 140, 0, 0.7)",
+                    filter: "brightness(1.3) drop-shadow(0 5px 12px rgba(0,0,0,0.55))",
+                  }
+                  : phase === "seal_dissolving"
+                    ? {
+                      scale: 0,
+                      opacity: 0,
+                      filter: "brightness(1.8) blur(2px) drop-shadow(0 5px 12px rgba(0,0,0,0.55))",
+                    }
+                    : phase === "idle"
+                      ? {
+                        scale: 1,
+                        opacity: 1,
+                        filter: "drop-shadow(0 5px 12px rgba(0,0,0,0.55))",
+                      }
+                      : {
+                        scale: 0,
+                        opacity: 0,
+                      }
+              }
+              transition={{
+                duration: phase === "seal_dissolving" ? 0.6 : 0.8,
+                ease: "easeInOut",
               }}
-              transition={{ duration: 0.8 }}
             >
               {/* Vòng ngoài con dấu — vàng dập nổi 3D */}
               <div
@@ -418,22 +616,7 @@ export default function EnvelopeAnimation({
             </motion.div>
           </motion.div>
 
-          {/* Chữ gợi ý */}
-          <AnimatePresence>
-            {phase === "idle" && (
-              <motion.p
-                key="hint"
-                className="absolute bottom-16 text-[11px] tracking-[0.25em] uppercase select-none"
-                style={{ color: "rgba(212,175,55,0.75)", textShadow: "0 0 8px rgba(212,175,55,0.3)" }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.25 } }}
-                transition={{ delay: 1.1, duration: 1.2 }}
-              >
-                Chạm vào con dấu để mở
-              </motion.p>
-            )}
-          </AnimatePresence>
+
         </div>
       )}
     </AnimatePresence>
