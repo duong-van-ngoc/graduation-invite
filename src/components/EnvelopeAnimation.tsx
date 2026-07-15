@@ -34,6 +34,7 @@ export default function EnvelopeAnimation({
   onStartFading,
 }: EnvelopeAnimationProps) {
   const [phase, setPhase] = useState<Phase>("idle");
+  const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,16 +42,19 @@ export default function EnvelopeAnimation({
   useEffect(() => {
     setMounted(true);
     setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    setIsMobile(window.innerWidth < 768);
     const handleResize = () => {
       setDimensions({ width: window.innerWidth, height: window.innerHeight });
+      setIsMobile(window.innerWidth < 768);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Sinh các thuộc tính ngẫu nhiên cố định cho 400 hạt bụi để tránh render lại liên tục (tối ưu hóa hiệu năng)
+  // Sinh các thuộc tính ngẫu nhiên cố định cho hạt bụi để tránh render lại liên tục (tối ưu hóa hiệu năng)
   const staticParticles = useMemo(() => {
-    return Array.from({ length: 400 }).map((_, i) => {
+    const count = isMobile ? 60 : 120;
+    return Array.from({ length: count }).map((_, i) => {
       const startX = Math.random() * 100;
       const size = Math.random() * 2 + 1;
       const delay = Math.random() * 8;
@@ -69,12 +73,13 @@ export default function EnvelopeAnimation({
         normalDuration,
       };
     });
-  }, []);
+  }, [isMobile]);
 
   // Sinh các hạt bụi vàng từ con dấu khi nó tan rã (seal_dissolving)
   const sealParticles = useMemo(() => {
-    return Array.from({ length: 60 }).map((_, i) => {
-      const angle = (i / 60) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+    const count = isMobile ? 25 : 45;
+    return Array.from({ length: count }).map((_, i) => {
+      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
       const velocity = 50 + Math.random() * 120;
       const size = Math.random() * 3 + 2;
       const delay = Math.random() * 0.25;
@@ -86,7 +91,7 @@ export default function EnvelopeAnimation({
         delay,
       };
     });
-  }, []);
+  }, [isMobile]);
 
   // 3D tilt khi hover (chỉ idle)
   const mouseX = useMotionValue(0);
