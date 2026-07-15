@@ -15,18 +15,22 @@ class Particle {
   size: number;
   trail: { x: number; y: number }[];
 
-  constructor(x: number, y: number, color: string) {
+  constructor(x: number, y: number, color: string, isBig: boolean = false) {
     this.x = x;
     this.y = y;
     const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 4 + 2;
+    // Tăng tốc độ ban đầu cho pháo nở to và lan rộng hơn
+    const maxSpeed = isBig ? 7.5 : 5.5;
+    const speed = Math.random() * maxSpeed + 2.5;
     this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed - Math.random() * 1.5;
+    this.vy = Math.sin(angle) * speed - Math.random() * 2;
     this.alpha = 1;
     this.color = color;
     this.gravity = 0.05;
-    this.friction = 0.95;
-    this.decay = Math.random() * 0.015 + 0.008;
+    // Giảm bớt ma sát để các hạt lửa bay xa và trôi nổi rộng hơn
+    this.friction = 0.965;
+    // Giảm độ phân rã để hạt pháo duy trì lâu hơn, lan xa hơn trước khi tắt
+    this.decay = Math.random() * 0.012 + 0.005;
     this.size = Math.random() * 1.5 + 1.2;
     this.trail = [];
   }
@@ -80,6 +84,7 @@ class Rocket {
   vy: number;
   color: string;
   isDead: boolean;
+  isRainbow: boolean;
   trail: { x: number; y: number }[];
 
   constructor(sx: number, sy: number, tx: number, ty: number, color: string) {
@@ -94,6 +99,8 @@ class Rocket {
     this.vy = dy / steps;
     this.color = color;
     this.isDead = false;
+    // 35% tỷ lệ nổ ra quả pháo hoa cầu vồng siêu to khổng lồ
+    this.isRainbow = Math.random() < 0.35;
     this.trail = [];
   }
 
@@ -209,10 +216,12 @@ export default function Fireworks() {
         r.draw(ctx);
 
         if (r.isDead) {
-          // Pháo nổ tạo các hạt tàn pháo rơi lấp lánh đa sắc (mỗi hạt một màu ngẫu nhiên)
-          const numParticles = 100 + Math.floor(Math.random() * 40);
+          // Số lượng hạt tàn pháo tương ứng: Quả cầu vồng siêu to (isRainbow) sẽ bắn ra nhiều hạt hơn hẳn
+          const numParticles = r.isRainbow ? 140 : 90;
           for (let p = 0; p < numParticles; p++) {
-            particles.push(new Particle(r.x, r.y, getRandomColor()));
+            // Nếu là quả pháo cầu vồng thì mỗi hạt một màu ngẫu nhiên, nếu không thì nổ đơn sắc (đỏ là đỏ, xanh là xanh)
+            const particleColor = r.isRainbow ? getRandomColor() : r.color;
+            particles.push(new Particle(r.x, r.y, particleColor, r.isRainbow));
           }
           rockets.splice(i, 1);
         }
