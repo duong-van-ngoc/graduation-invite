@@ -183,8 +183,8 @@ export default function Fireworks() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       spawnTimer++;
-      // Định kỳ bắn từ góc trái và góc phải lên
-      if (spawnTimer % 50 === 0 || spawnTimer === 10) {
+      // Định kỳ bắn từ góc trái và góc phải lên nhiều hơn (mỗi 35 frame)
+      if (spawnTimer % 35 === 0 || spawnTimer === 10) {
         // Góc dưới bên trái bắn lên phía giữa trái
         const leftTargetX = Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
         const leftTargetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
@@ -200,7 +200,7 @@ export default function Fireworks() {
           rockets.push(
             new Rocket(canvas.width, canvas.height, rightTargetX, rightTargetY, getRandomColor())
           );
-        }, 400);
+        }, 300);
       }
 
       // Cập nhật & Vẽ đạn pháo
@@ -210,10 +210,10 @@ export default function Fireworks() {
         r.draw(ctx);
 
         if (r.isDead) {
-          // Pháo nổ tạo các hạt tàn pháo rơi lấp lánh
+          // Pháo nổ tạo các hạt tàn pháo rơi lấp lánh đa sắc (mỗi hạt một màu ngẫu nhiên)
           const numParticles = 100 + Math.floor(Math.random() * 40);
           for (let p = 0; p < numParticles; p++) {
-            particles.push(new Particle(r.x, r.y, r.color));
+            particles.push(new Particle(r.x, r.y, getRandomColor()));
           }
           rockets.splice(i, 1);
         }
