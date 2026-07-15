@@ -1,0 +1,244 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
+class Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  alpha: number;
+  color: string;
+  gravity: number;
+  friction: number;
+  decay: number;
+  size: number;
+  trail: { x: number; y: number }[];
+
+  constructor(x: number, y: number, color: string) {
+    this.x = x;
+    this.y = y;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 4 + 2;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed - Math.random() * 1.5;
+    this.alpha = 1;
+    this.color = color;
+    this.gravity = 0.05;
+    this.friction = 0.95;
+    this.decay = Math.random() * 0.015 + 0.008;
+    this.size = Math.random() * 1.5 + 1.2;
+    this.trail = [];
+  }
+
+  update() {
+    this.trail.push({ x: this.x, y: this.y });
+    if (this.trail.length > 5) {
+      this.trail.shift();
+    }
+    this.vx *= this.friction;
+    this.vy *= this.friction;
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha -= this.decay;
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = this.color;
+    ctx.fillStyle = this.color;
+    
+    // Vẽ điểm sáng hạt pháo
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Vẽ đuôi hạt pháo bay
+    if (this.trail.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(this.trail[0].x, this.trail[0].y);
+      for (let i = 1; i < this.trail.length; i++) {
+        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+      }
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = this.size * 0.6;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+class Rocket {
+  x: number;
+  y: number;
+  tx: number;
+  ty: number;
+  vx: number;
+  vy: number;
+  color: string;
+  isDead: boolean;
+  trail: { x: number; y: number }[];
+
+  constructor(sx: number, sy: number, tx: number, ty: number, color: string) {
+    this.x = sx;
+    this.y = sy;
+    this.tx = tx;
+    this.ty = ty;
+    const dx = tx - sx;
+    const dy = ty - sy;
+    const steps = 40 + Math.random() * 15;
+    this.vx = dx / steps;
+    this.vy = dy / steps;
+    this.color = color;
+    this.isDead = false;
+    this.trail = [];
+  }
+
+  update() {
+    this.trail.push({ x: this.x, y: this.y });
+    if (this.trail.length > 10) {
+      this.trail.shift();
+    }
+    this.x += this.vx;
+    this.y += this.vy;
+    
+    const dx = this.tx - this.x;
+    const dy = this.ty - this.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 6 || this.y <= this.ty) {
+      this.isDead = true;
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = this.color;
+    ctx.fillStyle = this.color;
+    
+    // Vẽ đầu quả pháo
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Vẽ đuôi khói của quả pháo bay lên
+    if (this.trail.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(this.trail[0].x, this.trail[0].y);
+      for (let i = 1; i < this.trail.length; i++) {
+        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+      }
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+export default function Fireworks() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let rockets: Rocket[] = [];
+    let particles: Particle[] = [];
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    // Tông màu vàng kim mạ vàng sang trọng hoàng gia
+    const colors = [
+      "#FACC15", // yellow-400
+      "#F59E0B", // amber-500
+      "#FFFBEB", // white gold
+      "#FBBF24", // amber-400
+      "#EAB308", // yellow-500
+    ];
+
+    const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+
+    let spawnTimer = 0;
+
+    const animate = () => {
+      // Clear canvas và giữ nền trong suốt hoàn toàn
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      spawnTimer++;
+      // Định kỳ bắn từ góc trái và góc phải lên
+      if (spawnTimer % 100 === 0 || spawnTimer === 10) {
+        // Góc dưới bên trái bắn lên phía giữa trái
+        const leftTargetX = Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
+        const leftTargetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
+        rockets.push(
+          new Rocket(0, canvas.height, leftTargetX, leftTargetY, getRandomColor())
+        );
+
+        // Góc dưới bên phải bắn lên phía giữa phải
+        setTimeout(() => {
+          if (!canvas) return;
+          const rightTargetX = canvas.width - (Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05));
+          const rightTargetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
+          rockets.push(
+            new Rocket(canvas.width, canvas.height, rightTargetX, rightTargetY, getRandomColor())
+          );
+        }, 400);
+      }
+
+      // Cập nhật & Vẽ đạn pháo
+      for (let i = rockets.length - 1; i >= 0; i--) {
+        const r = rockets[i];
+        r.update();
+        r.draw(ctx);
+
+        if (r.isDead) {
+          // Pháo nổ tạo các hạt tàn pháo rơi lấp lánh
+          const numParticles = 35 + Math.floor(Math.random() * 20);
+          for (let p = 0; p < numParticles; p++) {
+            particles.push(new Particle(r.x, r.y, r.color));
+          }
+          rockets.splice(i, 1);
+        }
+      }
+
+      // Cập nhật & Vẽ các hạt tàn pháo hoa
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        p.draw(ctx);
+
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-full h-full pointer-events-none z-10"
+    />
+  );
+}

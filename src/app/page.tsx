@@ -13,6 +13,7 @@ const CountdownSection = dynamic(() => import("@/components/CountdownSection"), 
 const MapSection = dynamic(() => import("@/components/MapSection"), { ssr: false });
 const WishSection = dynamic(() => import("@/components/WishSection"), { ssr: false });
 const FooterSection = dynamic(() => import("@/components/FooterSection"), { ssr: false });
+const Fireworks = dynamic(() => import("@/components/Fireworks"), { ssr: false });
 
 // Trạng thái hiển thị phong bì
 type EnvelopeState = "showing" | "revealing" | "hidden";
@@ -42,6 +43,9 @@ export default function HomePage() {
 
               {/* Đường quét Laser dọc màn hình */}
               <div className="laser-scanner" />
+
+              {/* Hiệu ứng pháo hoa mạ vàng bắn từ 2 bên góc dưới */}
+              <Fireworks />
 
               {/* Hào quang nền màu ngọc - xanh ngọc công nghệ & vàng kim */}
               <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[rgba(6,182,212,0.03)] blur-[150px] pointer-events-none z-0" />
