@@ -18,8 +18,29 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ showParticles = false }: HeroSectionProps) {
-  const [typedText, setTypedText] = useState("");
   const fullText = `Lễ Tốt Nghiệp của ${STUDENT.name}`;
+
+  const sentenceVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const letterVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+  };
 
   const handleScrollToCard = () => {
     const cardElement = document.getElementById("invitation");
@@ -28,20 +49,6 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
     }
   };
 
-  // Hiệu ứng gõ chữ từ từ từng chữ cái một (Slower character-by-character typing effect)
-  useEffect(() => {
-    let currentIndex = 0;
-    const typingInterval = setInterval(() => {
-      if (currentIndex <= fullText.length) {
-        setTypedText(fullText.slice(0, currentIndex));
-        currentIndex++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 140); // Gõ từ từ mỗi chữ cái cách nhau 140ms
-
-    return () => clearInterval(typingInterval);
-  }, [fullText]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -94,10 +101,24 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
         </motion.p>
 
         {/* Typing Title */}
-        <motion.div variants={fadeIn} className="mb-8">
-          <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            <span className="text-gradient">{typedText}</span>
-          </h1>
+        <motion.div className="mb-8">
+          <motion.h1
+            variants={sentenceVariants}
+            initial="hidden"
+            animate="visible"
+            className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold leading-tight"
+          >
+            {fullText.split("").map((char, index) => (
+              <motion.span
+                key={char + "-" + index}
+                variants={letterVariants}
+                className="inline-block text-gradient"
+                style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+              >
+                {char}
+              </motion.span>
+            ))}
+          </motion.h1>
         </motion.div>
 
         {/* Student Info */}
