@@ -114,7 +114,7 @@ export default function InvitationCard() {
             </div>
 
             {/* Info Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="glass-light rounded-2xl p-4 text-center">
                 <Calendar className="w-5 h-5 text-accent mx-auto mb-2" />
                 <p className="text-muted text-xs uppercase tracking-wider mb-1">
@@ -135,7 +135,7 @@ export default function InvitationCard() {
                 </p>
               </div>
 
-              <div className="glass-light rounded-2xl p-4 text-center">
+              <div className="glass-light rounded-2xl p-4 text-center col-span-2">
                 <MapPin className="w-5 h-5 text-accent mx-auto mb-2" />
                 <p className="text-muted text-xs uppercase tracking-wider mb-1">
                   Địa điểm
@@ -148,10 +148,7 @@ export default function InvitationCard() {
 
             {/* Thank you message */}
             <div className="text-center">
-              <p className="text-muted text-sm italic leading-relaxed">
-                &ldquo;Sự hiện diện của Quý Khách là niềm vinh hạnh lớn lao
-                đối với tôi.&rdquo;
-              </p>
+
             </div>
 
             {/* Bottom decoration */}
