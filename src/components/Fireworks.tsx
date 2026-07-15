@@ -50,12 +50,12 @@ class Particle {
     ctx.shadowBlur = 6;
     ctx.shadowColor = this.color;
     ctx.fillStyle = this.color;
-    
+
     // Vẽ điểm sáng hạt pháo
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
-    
+
     // Vẽ đuôi hạt pháo bay
     if (this.trail.length > 1) {
       ctx.beginPath();
@@ -104,7 +104,7 @@ class Rocket {
     }
     this.x += this.vx;
     this.y += this.vy;
-    
+
     const dx = this.tx - this.x;
     const dy = this.ty - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -118,7 +118,7 @@ class Rocket {
     ctx.shadowBlur = 8;
     ctx.shadowColor = this.color;
     ctx.fillStyle = this.color;
-    
+
     // Vẽ đầu quả pháo
     ctx.beginPath();
     ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
@@ -159,13 +159,19 @@ export default function Fireworks() {
     window.addEventListener("resize", handleResize);
     handleResize();
 
-    // Tông màu vàng kim mạ vàng sang trọng hoàng gia
+    // Tông màu pháo hoa đa sắc sinh động, rực rỡ và lễ hội
     const colors = [
-      "#FACC15", // yellow-400
-      "#F59E0B", // amber-500
-      "#FFFBEB", // white gold
-      "#FBBF24", // amber-400
-      "#EAB308", // yellow-500
+      "#FACC15", // Vàng kim
+      "#F59E0B", // Cam ấm
+      "#FF2E93", // Hồng Neon
+      "#00F2FE", // Xanh ngọc điện tử
+      "#3B82F6", // Xanh dương sáng
+      "#A855F7", // Tím Neon
+      "#10B981", // Xanh lục bảo
+      "#EC4899", // Hồng phấn
+      "#00FF87", // Xanh lá Neon
+      "#FF5E62", // Đỏ cam hoàng hôn
+      "#FFFBEB", // Trắng ánh vàng
     ];
 
     const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
@@ -178,7 +184,7 @@ export default function Fireworks() {
 
       spawnTimer++;
       // Định kỳ bắn từ góc trái và góc phải lên
-      if (spawnTimer % 100 === 0 || spawnTimer === 10) {
+      if (spawnTimer % 50 === 0 || spawnTimer === 10) {
         // Góc dưới bên trái bắn lên phía giữa trái
         const leftTargetX = Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
         const leftTargetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
@@ -205,7 +211,7 @@ export default function Fireworks() {
 
         if (r.isDead) {
           // Pháo nổ tạo các hạt tàn pháo rơi lấp lánh
-          const numParticles = 35 + Math.floor(Math.random() * 20);
+          const numParticles = 100 + Math.floor(Math.random() * 40);
           for (let p = 0; p < numParticles; p++) {
             particles.push(new Particle(r.x, r.y, r.color));
           }
