@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { STUDENT, EVENT } from "@/lib/constants";
-import { Clock, MapPin, GraduationCap, Shirt, Heart } from "lucide-react";
+import { Clock, MapPin, GraduationCap, Shirt, Heart, Scroll } from "lucide-react";
 
 export default function InvitationCard() {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -124,6 +124,22 @@ export default function InvitationCard() {
         <GraduationCap className="w-10 h-10 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.2)]" />
       </motion.div>
 
+      {/* Cuộn thư góc dưới bên trái */}
+      <motion.div
+        className="absolute bottom-[22%] left-[8%] xl:left-[12%] hidden lg:block z-10 text-accent/30 pointer-events-none select-none"
+        animate={{
+          y: [0, -15, 0],
+          rotate: [0, -12, 0],
+        }}
+        transition={{
+          duration: 5.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <Scroll className="w-10 h-10 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.2)]" />
+      </motion.div>
+
       {/* Trang trí rìa bên phải - Ruy-băng vàng uốn lượn đối xứng gương và mũ tốt nghiệp */}
       <motion.div
         className="hidden lg:block absolute right-[5%] xl:right-[10%] top-1/2 -translate-y-1/2 w-32 h-80 pointer-events-none select-none z-10 text-accent scale-x-[-1]"
@@ -160,6 +176,22 @@ export default function InvitationCard() {
         }}
       >
         <GraduationCap className="w-10 h-10 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.2)]" />
+      </motion.div>
+
+      {/* Cuộn thư góc dưới bên phải */}
+      <motion.div
+        className="absolute bottom-[22%] right-[8%] xl:right-[12%] hidden lg:block z-10 text-accent/30 pointer-events-none select-none scale-x-[-1]"
+        animate={{
+          y: [0, -15, 0],
+          rotate: [0, 12, 0],
+        }}
+        transition={{
+          duration: 5.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <Scroll className="w-10 h-10 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.2)]" />
       </motion.div>
 
       {/* 3D Card Container */}
