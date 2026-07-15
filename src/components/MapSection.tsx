@@ -62,15 +62,7 @@ export default function MapSection() {
               Xem Đường Đi
             </a>
 
-            <a
-              href={generateCalendarUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-3 px-8 py-4 glass border border-accent/20 text-surface font-medium rounded-full hover:border-accent/50 hover:scale-105 transition-all duration-300"
-            >
-              <CalendarPlus className="w-5 h-5 text-accent group-hover:scale-110 transition-transform duration-300" />
-              Thêm vào Google Calendar
-            </a>
+
           </div>
         </motion.div>
       </div>

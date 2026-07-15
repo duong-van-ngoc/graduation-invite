@@ -74,7 +74,7 @@ export default function InvitationCard() {
     .replace(/\//g, ".");
 
   return (
-    <section className="relative py-32 px-6" id="invitation">
+    <section className="relative py-16 px-6" id="invitation">
       {/* Hào quang nền */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[150px] pointer-events-none" />
 
@@ -141,25 +141,23 @@ export default function InvitationCard() {
             <div className="absolute bottom-5 right-5 w-4 h-4 border-b border-r border-accent/40 pointer-events-none" />
 
             {/* ── 1. ĐẦU THIỆP (TOP DECORATION) ── */}
-            <div className="flex flex-col items-center mb-6">
+            <div className="flex flex-col items-center mb-4">
               <GraduationCap className="w-9 h-9 text-accent mb-2 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
-
               <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent mt-2" />
             </div>
 
             {/* ── 2. TIÊU ĐỀ CHÍNH (MAIN TITLE) ── */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-4">
               <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-gradient tracking-widest mb-1">
                 THIỆP MỜI
               </h2>
-              <p className="font-script text-5xl md:text-6xl text-accent my-3 select-none leading-none">
+              <p className="font-script text-5xl md:text-6xl text-accent my-1 select-none leading-none">
                 Tốt Nghiệp
               </p>
-
             </div>
 
             {/* ── 3. LỜI MỜI CHI TIẾT (INVITATION MESSAGE) ── */}
-            <div className="text-center mb-8 px-2">
+            <div className="text-center mb-5 px-2">
               <p className="text-muted text-sm md:text-base leading-relaxed max-w-sm mx-auto">
                 {guestName === "Bạn" ? (
                   <>
@@ -176,23 +174,21 @@ export default function InvitationCard() {
             </div>
 
             {/* ── 4. THÔNG TIN CỬ NHÂN (GRADUATE INFO) ── */}
-            <div className="text-center mb-10">
+            <div className="text-center mb-6">
               <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent mx-auto mb-4" />
-              <h3 className="font-heading text-2xl md:text-3xl font-bold text-gradient tracking-wide mb-3">
+              <h3 className="font-heading text-2xl md:text-3xl font-bold text-gradient tracking-wide mb-2">
                 {STUDENT.name.toUpperCase()}
               </h3>
-
-
             </div>
 
             {/* ── 5. CHI TIẾT SỰ KIỆN 2 CỘT (EVENT DETAILS - Responsive) ── */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-accent/15 border-t border-b border-accent/15 py-8 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-accent/15 border-t border-b border-accent/15 py-5 mb-6">
               {/* Cột 1: THỜI GIAN */}
               <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-                <div className="w-12 h-12 rounded-full border border-accent/40 flex items-center justify-center mb-3 bg-accent/5">
+                <div className="w-12 h-12 rounded-full border border-accent/40 flex items-center justify-center mb-2 bg-accent/5">
                   <Clock className="w-5 h-5 text-accent" />
                 </div>
-                <h4 className="text-accent text-xs md:text-sm font-bold tracking-widest uppercase mb-2 font-body">
+                <h4 className="text-accent text-xs md:text-sm font-bold tracking-widest uppercase mb-1 font-body">
                   Thời Gian
                 </h4>
                 <p className="text-surface font-semibold text-sm md:text-base">
@@ -205,10 +201,10 @@ export default function InvitationCard() {
 
               {/* Cột 2: ĐỊA ĐIỂM */}
               <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-                <div className="w-12 h-12 rounded-full border border-accent/40 flex items-center justify-center mb-3 bg-accent/5">
+                <div className="w-12 h-12 rounded-full border border-accent/40 flex items-center justify-center mb-2 bg-accent/5">
                   <MapPin className="w-5 h-5 text-accent" />
                 </div>
-                <h4 className="text-accent text-xs md:text-sm font-bold tracking-widest uppercase mb-2 font-body">
+                <h4 className="text-accent text-xs md:text-sm font-bold tracking-widest uppercase mb-1 font-body">
                   Địa Điểm
                 </h4>
                 <p className="text-surface font-semibold text-sm md:text-base">
@@ -222,9 +218,8 @@ export default function InvitationCard() {
             </div>
 
             {/* ── 6. LỜI CẢM ƠN & CHỮ KÝ (FOOTER MESSAGE) ── */}
-            <div className="text-center mt-6">
-
-              <p className="font-script text-4xl text-accent my-2 select-none">
+            <div className="text-center mt-4">
+              <p className="font-script text-4xl text-accent my-1 select-none">
                 Trân trọng!
               </p>
               <div className="flex justify-center mt-2">
