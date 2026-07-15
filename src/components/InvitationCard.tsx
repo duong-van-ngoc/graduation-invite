@@ -29,18 +29,39 @@ export default function InvitationCard() {
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["8deg", "-8deg"]);
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-8deg", "8deg"]);
 
+  // Tọa độ vệt sáng vàng tương tác đuổi theo chuột
+  const glowX = useMotionValue(-1000);
+  const glowY = useMotionValue(-1000);
+
+  const glowXSpring = useSpring(glowX, { stiffness: 300, damping: 30 });
+  const glowYSpring = useSpring(glowY, { stiffness: 300, damping: 30 });
+
+  const glowBg = useTransform(
+    [glowXSpring, glowYSpring],
+    ([xVal, yVal]) => `radial-gradient(circle 220px at ${xVal}px ${yVal}px, rgba(250, 204, 21, 0.15), transparent 80%)`
+  );
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
+    
+    // Nghiêng 3D
     const xPos = (e.clientX - rect.left) / rect.width - 0.5;
     const yPos = (e.clientY - rect.top) / rect.height - 0.5;
     x.set(xPos);
     y.set(yPos);
+
+    // Vệt sáng vàng
+    glowX.set(e.clientX - rect.left);
+    glowY.set(e.clientY - rect.top);
   };
 
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);
+    // Di chuyển vệt sáng ra ngoài vùng hiển thị
+    glowX.set(-1000);
+    glowY.set(-1000);
   };
 
   // Định dạng ngày dạng DD.MM.YYYY
@@ -88,12 +109,18 @@ export default function InvitationCard() {
         >
           {/* Lớp nền phong cách giấy nhám Navy sang trọng mạ vàng */}
           <div
-            className="relative rounded-3xl p-6 md:p-8 border border-accent/30 overflow-hidden"
+            className="relative rounded-3xl p-6 md:p-8 border border-accent/30 overflow-hidden animate-gradient"
             style={{
               background:
-                "linear-gradient(135deg, #0B1425 0%, #15233C 60%, #060D1A 100%)",
+                "linear-gradient(-45deg, #0B1425, #15233C, #060D1A, #101E35)",
+              backgroundSize: "400% 400%",
             }}
           >
+            {/* Lớp phủ vệt sáng vàng tương tác di chuyển theo chuột */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{ background: glowBg }}
+            />
             {/* Vân giấy mịn cao cấp */}
             <div
               className="absolute inset-0 opacity-[0.06] pointer-events-none"
