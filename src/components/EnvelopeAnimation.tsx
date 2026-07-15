@@ -174,10 +174,9 @@ export default function EnvelopeAnimation({
             }}
           >
             {(() => {
-               const isMd = dimensions.width >= 768;
-               const isSm = dimensions.width >= 640;
-               const envelopeWidth = isMd ? 500 : isSm ? 340 : 290;
-               const envelopeHeight = isMd ? 340 : isSm ? 230 : 197;
+              const isMd = dimensions.width >= 768;
+              const envelopeWidth = isMd ? 500 : 340;
+              const envelopeHeight = isMd ? 340 : 230;
               const envelopeLeft = (dimensions.width - envelopeWidth) / 2;
               const envelopeRight = (dimensions.width + envelopeWidth) / 2;
               const envelopeTop = (dimensions.height - envelopeHeight) / 2;
@@ -267,7 +266,7 @@ export default function EnvelopeAnimation({
           {/* ── PHONG BÌ & CAMERA SHAKE ── */}
           <motion.div
             ref={containerRef}
-            className="relative z-10 w-[290px] h-[197px] sm:w-[340px] sm:h-[230px] md:w-[500px] md:h-[340px] cursor-pointer select-none pointer-events-auto"
+            className="relative z-10 w-[340px] h-[230px] md:w-[500px] md:h-[340px] cursor-pointer select-none pointer-events-auto"
             style={
               phase === "idle"
                 ? { rotateX, rotateY, transformStyle: "preserve-3d" }

@@ -28,56 +28,54 @@ export default function HomePage() {
             Điều này giúp tối ưu hóa hiệu năng CPU và RAM của thiết bị bằng cách trì hoãn
             việc dựng giao diện bản đồ, bộ đếm ngược, và chạy các script hiệu ứng khác.
         */}
-        {/* ── NỘI DUNG CHÍNH ──
-            Được dựng sẵn trong DOM dưới dạng ẩn để trình duyệt tải trước các chunks (dynamic chunks)
-            và tài nguyên ảnh trong lúc người dùng xem phong bì. Khi mở phong bì, hiệu ứng chuyển cảnh
-            sẽ cực kỳ mượt mà không bị giật lag do tải tài nguyên.
-        */}
-        <div
-          className={`transition-opacity duration-[1400ms] ease-out ${
-            envelopeState === "showing"
-              ? "opacity-0 pointer-events-none absolute inset-0 overflow-hidden h-0"
-              : "opacity-100"
-          }`}
-        >
-          {/* Cảnh 1 — Hero Section (hiện ngay sau phong bì) */}
-          <HeroSection showParticles={envelopeState === "hidden"} />
+        <AnimatePresence>
+          {envelopeState !== "showing" && (
+            <motion.div
+              key="main-content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.4, ease: "easeOut" }}
+            >
+              {/* Cảnh 1 — Hero Section (hiện ngay sau phong bì) */}
+              <HeroSection showParticles={envelopeState === "hidden"} />
 
-          {/* Divider */}
-          <div className="relative h-20">
-            <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-          </div>
+              {/* Divider */}
+              <div className="relative h-20">
+                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+              </div>
 
-          {/* Cảnh 2 — Thiệp mời chi tiết */}
-          <InvitationCard />
+              {/* Cảnh 2 — Thiệp mời chi tiết */}
+              <InvitationCard />
 
-          {/* Divider */}
-          <div className="relative h-16">
-            <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-          </div>
+              {/* Divider */}
+              <div className="relative h-16">
+                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+              </div>
 
-          {/* Cảnh 3 — Đếm ngược */}
-          <CountdownSection />
+              {/* Cảnh 3 — Đếm ngược */}
+              <CountdownSection />
 
-          {/* Divider */}
-          <div className="relative h-16">
-            <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-          </div>
+              {/* Divider */}
+              <div className="relative h-16">
+                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+              </div>
 
-          {/* Cảnh 4 — Bản đồ */}
-          <MapSection />
+              {/* Cảnh 4 — Bản đồ */}
+              <MapSection />
 
-          {/* Divider */}
-          <div className="relative h-16">
-            <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-          </div>
+              {/* Divider */}
+              <div className="relative h-16">
+                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+              </div>
 
-          {/* Cảnh 5 — Lời chúc */}
-          <WishSection />
+              {/* Cảnh 5 — Lời chúc */}
+              <WishSection />
 
-          {/* Cảnh 6 — Lời cảm ơn */}
-          <FooterSection />
-        </div>
+              {/* Cảnh 6 — Lời cảm ơn */}
+              <FooterSection />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── PHONG BÌ OVERLAY (fixed, đè lên nội dung) ── */}
         <AnimatePresence>
