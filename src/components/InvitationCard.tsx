@@ -67,7 +67,7 @@ export default function InvitationCard() {
 
       {/* 3D Card Container */}
       <motion.div
-        className="max-w-xl mx-auto perspective-[1000px]"
+        className="max-w-md mx-auto perspective-[1000px]"
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
@@ -88,7 +88,7 @@ export default function InvitationCard() {
         >
           {/* Lớp nền phong cách giấy nhám Navy sang trọng mạ vàng */}
           <div
-            className="relative rounded-3xl p-8 md:p-12 border border-accent/30 overflow-hidden"
+            className="relative rounded-3xl p-6 md:p-8 border border-accent/30 overflow-hidden"
             style={{
               background:
                 "linear-gradient(135deg, #0B1425 0%, #15233C 60%, #060D1A 100%)",
@@ -116,9 +116,7 @@ export default function InvitationCard() {
             {/* ── 1. ĐẦU THIỆP (TOP DECORATION) ── */}
             <div className="flex flex-col items-center mb-6">
               <GraduationCap className="w-9 h-9 text-accent mb-2 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
-              <p className="text-accent/80 text-xs md:text-sm uppercase tracking-[0.25em] font-body font-light">
-                Trân trọng kính mời
-              </p>
+
               <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent mt-2" />
             </div>
 
@@ -130,9 +128,7 @@ export default function InvitationCard() {
               <p className="font-script text-5xl md:text-6xl text-accent my-3 select-none leading-none">
                 Tốt Nghiệp
               </p>
-              <p className="text-accent/60 text-xs tracking-[0.3em] uppercase mt-2">
-                — We Are Graduate —
-              </p>
+
             </div>
 
             {/* ── 3. LỜI MỜI CHI TIẾT (INVITATION MESSAGE) ── */}
@@ -158,19 +154,12 @@ export default function InvitationCard() {
               <h3 className="font-heading text-2xl md:text-3xl font-bold text-gradient tracking-wide mb-3">
                 {STUDENT.name.toUpperCase()}
               </h3>
-              <div className="flex justify-center my-3">
-                <GraduationCap className="w-5 h-5 text-accent/70" />
-              </div>
-              <p className="text-accent text-sm md:text-base font-semibold tracking-wider mb-1">
-                CỬ NHÂN {STUDENT.major.toUpperCase()}
-              </p>
-              <p className="text-muted text-xs md:text-sm tracking-widest uppercase">
-                KHÓA 2021 — 2025
-              </p>
+
+
             </div>
 
-            {/* ── 5. CHI TIẾT SỰ KIỆN 3 CỘT (EVENT DETAILS - Responsive) ── */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-accent/15 border-t border-b border-accent/15 py-8 mb-10">
+            {/* ── 5. CHI TIẾT SỰ KIỆN 2 CỘT (EVENT DETAILS - Responsive) ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-accent/15 border-t border-b border-accent/15 py-8 mb-10">
               {/* Cột 1: THỜI GIAN */}
               <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
                 <div className="w-12 h-12 rounded-full border border-accent/40 flex items-center justify-center mb-3 bg-accent/5">
@@ -201,22 +190,6 @@ export default function InvitationCard() {
                 <p className="text-muted text-xs md:text-sm mt-1 leading-relaxed">
                   {EVENT.venue.split("|")[1]?.trim() || "Tòa nhà A9-A10"} <br />
                   {EVENT.venue.split("|")[2]?.trim() || "Đại học Phenikaa"}
-                </p>
-              </div>
-
-              {/* Cột 3: TRANG PHỤC */}
-              <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-                <div className="w-12 h-12 rounded-full border border-accent/40 flex items-center justify-center mb-3 bg-accent/5">
-                  <Shirt className="w-5 h-5 text-accent" />
-                </div>
-                <h4 className="text-accent text-xs md:text-sm font-bold tracking-widest uppercase mb-2 font-body">
-                  Trang Phục
-                </h4>
-                <p className="text-surface font-semibold text-sm md:text-base">
-                  {EVENT.dressCode}
-                </p>
-                <p className="text-muted text-xs md:text-sm mt-1">
-                  Lễ phục tốt nghiệp
                 </p>
               </div>
             </div>
