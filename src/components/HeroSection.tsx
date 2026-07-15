@@ -2,12 +2,11 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { Cpu, Terminal, GraduationCap } from "lucide-react";
 import ParticlesBackground from "./ParticlesBackground";
 import { STUDENT } from "@/lib/constants";
 import {
   fadeIn,
-  fadeInUp,
   staggerContainer,
   staggerItem,
   scaleIn,
@@ -49,35 +48,12 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
     return () => clearTimeout(timeoutId);
   }, [fullText]);
 
-  const sentenceVariants = {
-    hidden: { opacity: 1 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-      },
-    },
-  };
-
-  const letterVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut",
-      },
-    },
-  };
-
   const handleScrollToCard = () => {
     const cardElement = document.getElementById("invitation");
     if (cardElement) {
       cardElement.scrollIntoView({ behavior: "smooth" });
     }
   };
-
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -107,18 +83,37 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
         </svg>
       </div>
 
-      {/* Content */}
+      {/* Side tech indicators */}
+      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 opacity-30 select-none pointer-events-none font-mono text-[10px] tracking-[0.25em] text-accent/80 z-20">
+        <p className="[writing-mode:vertical-lr] uppercase mb-4">SYSTEM ID: PKA_GRADUATE_2026</p>
+        <div className="w-[1px] h-24 bg-gradient-to-b from-accent/50 to-transparent mx-auto" />
+      </div>
+      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 opacity-30 select-none pointer-events-none font-mono text-[10px] tracking-[0.25em] text-accent/80 z-20">
+        <div className="w-[1px] h-24 bg-gradient-to-t from-accent/50 to-transparent mx-auto mb-4" />
+        <p className="[writing-mode:vertical-lr] uppercase">STATUS: ACTIVE // CONFIRMED_OK</p>
+      </div>
+
+      {/* Main Content */}
       <motion.div
-        className="relative z-40 text-center px-6 max-w-4xl mx-auto"
+        className="relative z-40 text-center px-6 max-w-4xl mx-auto flex flex-col items-center"
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
       >
-        {/* Avatar and Logo Section */}
-        <div className="flex flex-col items-center gap-6 mb-6">
+        {/* ── 1. AVATAR SECTION WITH HUD ROTATING RING ── */}
+        <div className="relative w-36 h-36 md:w-40 md:h-40 flex items-center justify-center mb-8">
+          {/* Vòng quay HUD phía sau */}
+          <div className="absolute inset-0 pointer-events-none animate-[spin_40s_linear_infinite] select-none opacity-60">
+            <svg className="w-full h-full" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="48" stroke="#FACC15" strokeWidth="0.5" fill="none" strokeDasharray="10, 15, 30, 15" />
+              <circle cx="50" cy="50" r="45" stroke="rgba(250, 204, 21, 0.3)" strokeWidth="0.3" fill="none" strokeDasharray="2, 5" />
+            </svg>
+          </div>
+          
+          {/* Khung ảnh tỏa sáng */}
           <motion.div
             variants={scaleIn}
-            className="relative w-32 h-32 md:w-36 md:h-36 rounded-full p-[3px] bg-gradient-to-br from-accent via-accent-dark to-transparent glow-accent"
+            className="w-[86%] h-[86%] rounded-full p-[3px] bg-gradient-to-br from-accent via-accent-dark to-transparent glow-accent relative z-10"
           >
             <div className="w-full h-full rounded-full overflow-hidden border-2 border-primary bg-primary-light">
               <img
@@ -127,50 +122,45 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* Small floating University Logo */}
-            <div className="absolute -bottom-1 -right-1 w-11 h-11 rounded-full bg-primary p-[2px] border border-accent/40 shadow-lg flex items-center justify-center">
-              <img
-                src={STUDENT.logo}
-                alt={STUDENT.universityShort}
-                className="w-full h-full object-contain rounded-full"
-              />
-            </div>
           </motion.div>
+
+          {/* Floating mini HUD tag */}
+          <div className="absolute -top-1 right-2 bg-accent text-[#0F172A] text-[9px] font-bold px-2 py-0.5 rounded-full z-20 border border-primary flex items-center gap-1 select-none shadow-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0F172A] animate-ping" />
+            GRADUATED
+          </div>
+
+          {/* University Logo Badge */}
+          <div className="absolute -bottom-1 -right-1 w-12 h-12 rounded-full bg-primary p-[3px] border border-accent/40 shadow-xl flex items-center justify-center z-20">
+            <img
+              src={STUDENT.logo}
+              alt={STUDENT.universityShort}
+              className="w-full h-full object-contain rounded-full"
+            />
+          </div>
         </div>
 
-        {/* University Name */}
+        {/* ── 2. UNIVERSITY NAME ── */}
         <motion.p
           variants={staggerItem}
-          className="text-muted text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body"
+          className="text-accent/80 text-sm md:text-base uppercase tracking-[0.35em] mb-4 font-body font-light"
         >
           {STUDENT.university}
         </motion.p>
 
-        {/* Typing Title */}
-        {/* Typing Title */}
+        {/* ── 3. TYPING TITLE ── */}
         <motion.div
-          className="mb-8"
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 0.8,
-          }}
+          className="mb-10 max-w-2xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
         >
-          <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-gradient">
+          <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-gradient tracking-wide">
             {displayText}
-
             {showCursor && (
               <motion.span
-                className="inline-block ml-1 text-accent"
-                animate={{
-                  opacity: [1, 0, 1],
-                }}
+                className="inline-block ml-1 text-accent font-light"
+                animate={{ opacity: [1, 0, 1] }}
                 transition={{
                   duration: 0.8,
                   repeat: Infinity,
@@ -183,42 +173,79 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
           </h1>
         </motion.div>
 
-        {/* Student Info */}
+        {/* ── 4. CYBER INFO CARDS (Tech-HUD cards) ── */}
         <motion.div
           variants={staggerContainer}
-          className="flex flex-wrap justify-center gap-4 md:gap-8 mb-12"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl mb-16 px-4 z-10"
         >
-          {[
-            { label: "Khóa", value: STUDENT.course },
-            { label: "Chuyên ngành", value: STUDENT.major },
+          {/* Card 1: Chuyên ngành */}
+          <motion.div
+            variants={staggerItem}
+            className="glass-light rounded-xl p-4 border border-accent/15 text-center relative overflow-hidden group hover:border-accent/40 transition-all duration-300"
+          >
+            {/* Tech Notched Corners */}
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-accent/45" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent/45" />
+            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent/45" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-accent/45" />
+            
+            <div className="flex justify-center mb-2">
+              <Terminal className="w-5 h-5 text-accent/70 group-hover:text-accent group-hover:scale-110 transition-all" />
+            </div>
+            <p className="text-accent/60 text-[10px] uppercase tracking-[0.2em] mb-1 font-body">Chuyên Ngành</p>
+            <p className="text-surface font-semibold text-sm tracking-wide">{STUDENT.major}</p>
+          </motion.div>
 
-          ].map((info) => (
-            <motion.div
-              key={info.label}
-              variants={staggerItem}
-              className="glass rounded-2xl px-6 py-3"
-            >
-              <p className="text-muted text-xs uppercase tracking-wider mb-1">
-                {info.label}
-              </p>
-              <p className="text-surface font-medium text-sm md:text-base">
-                {info.value}
-              </p>
-            </motion.div>
-          ))}
+          {/* Card 2: Niên khóa */}
+          <motion.div
+            variants={staggerItem}
+            className="glass-light rounded-xl p-4 border border-accent/15 text-center relative overflow-hidden group hover:border-accent/40 transition-all duration-300"
+          >
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-accent/45" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent/45" />
+            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent/45" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-accent/45" />
+            
+            <div className="flex justify-center mb-2">
+              <Cpu className="w-5 h-5 text-accent/70 group-hover:text-accent group-hover:scale-110 transition-all" />
+            </div>
+            <p className="text-accent/60 text-[10px] uppercase tracking-[0.2em] mb-1 font-body">Niên Khóa</p>
+            <p className="text-surface font-semibold text-sm tracking-wide">{STUDENT.course} (2021 — 2025)</p>
+          </motion.div>
+
+          {/* Card 3: Cơ sở đào tạo */}
+          <motion.div
+            variants={staggerItem}
+            className="glass-light rounded-xl p-4 border border-accent/15 text-center relative overflow-hidden group hover:border-accent/40 transition-all duration-300"
+          >
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-accent/45" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent/45" />
+            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent/45" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-accent/45" />
+            
+            <div className="flex justify-center mb-2">
+              <GraduationCap className="w-5 h-5 text-accent/70 group-hover:text-accent group-hover:scale-110 transition-all" />
+            </div>
+            <p className="text-accent/60 text-[10px] uppercase tracking-[0.2em] mb-1 font-body">Đại Học</p>
+            <p className="text-surface font-semibold text-sm tracking-wide">{STUDENT.universityShort}</p>
+          </motion.div>
         </motion.div>
 
-        {/* CTA Button */}
-
-
-        {/* Scroll indicator */}
+        {/* ── 5. SCROLL GUIDE (Futuristic Mouse scroll indicator) ── */}
         <motion.div
           variants={fadeIn}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer z-40"
+          onClick={handleScrollToCard}
+          whileHover={{ scale: 1.05 }}
         >
-          <ChevronDown className="w-6 h-6 text-muted/50" />
+          <span className="text-[9px] uppercase tracking-[0.25em] text-muted/60 font-body select-none">Cuộn xuống</span>
+          <div className="w-[20px] h-[34px] rounded-full border border-accent/30 flex justify-center p-1.5">
+            <motion.div
+              className="w-1 h-1 rounded-full bg-accent"
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </div>
         </motion.div>
       </motion.div>
     </section>

@@ -72,8 +72,7 @@ export default function HomePage() {
                 <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
               </div>
 
-              {/* Cảnh 5 — Lời chúc */}
-              <WishSection />
+
 
               {/* Cảnh 6 — Lời cảm ơn */}
               <FooterSection />

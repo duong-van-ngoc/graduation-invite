@@ -44,7 +44,7 @@ export default function InvitationCard() {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
+
     // Nghiêng 3D
     const xPos = (e.clientX - rect.left) / rect.width - 0.5;
     const yPos = (e.clientY - rect.top) / rect.height - 0.5;
@@ -223,10 +223,7 @@ export default function InvitationCard() {
 
             {/* ── 6. LỜI CẢM ƠN & CHỮ KÝ (FOOTER MESSAGE) ── */}
             <div className="text-center mt-6">
-              <p className="text-muted text-sm italic leading-relaxed max-w-sm mx-auto mb-4 px-4">
-                &ldquo;Sự hiện diện của Quý vị là niềm vinh hạnh <br />
-                và động viên lớn lao đối với tôi!&rdquo;
-              </p>
+
               <p className="font-script text-4xl text-accent my-2 select-none">
                 Trân trọng!
               </p>
