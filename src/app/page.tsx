@@ -35,7 +35,11 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1.4, ease: "easeOut" }}
+              className="relative min-h-screen overflow-hidden"
             >
+              {/* Lớp lưới công nghệ tương lai */}
+              <div className="absolute inset-0 tech-grid pointer-events-none z-0" />
+
               {/* Cảnh 1 — Hero Section (hiện ngay sau phong bì) */}
               <HeroSection showParticles={envelopeState === "hidden"} />
 

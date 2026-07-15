@@ -49,7 +49,11 @@ export default function ParticlesBackground() {
           },
         },
         links: {
-          enable: false,
+          enable: true,
+          color: "#FACC15",
+          distance: 120,
+          opacity: 0.12,
+          width: 0.8,
         },
       },
       detectRetina: true,

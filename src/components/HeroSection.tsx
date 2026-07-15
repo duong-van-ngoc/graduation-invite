@@ -90,6 +90,23 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
       {/* Radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] z-[1]" />
 
+      {/* Vòng tròn công nghệ đồng tâm xoay chậm phong cách tương lai */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[700px] md:h-[700px] pointer-events-none opacity-20 z-[1] select-none">
+        <svg className="w-full h-full animate-[spin_180s_linear_infinite]" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="95" stroke="rgba(250, 204, 21, 0.12)" strokeWidth="0.4" fill="none" strokeDasharray="3, 6" />
+          <circle cx="100" cy="100" r="80" stroke="rgba(250, 204, 21, 0.08)" strokeWidth="0.5" fill="none" strokeDasharray="20, 8, 4, 8" />
+          <circle cx="100" cy="100" r="65" stroke="rgba(250, 204, 21, 0.15)" strokeWidth="0.3" fill="none" />
+          <circle cx="100" cy="100" r="50" stroke="rgba(250, 204, 21, 0.1)" strokeWidth="0.6" fill="none" strokeDasharray="1, 4" />
+        </svg>
+      </div>
+
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[700px] md:h-[700px] pointer-events-none opacity-15 z-[1] select-none">
+        <svg className="w-full h-full animate-[spin_100s_linear_infinite_reverse]" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" stroke="rgba(250, 204, 21, 0.08)" strokeWidth="0.4" fill="none" strokeDasharray="15, 10" />
+          <circle cx="100" cy="100" r="72" stroke="rgba(250, 204, 21, 0.12)" strokeWidth="0.3" fill="none" strokeDasharray="40, 5" />
+        </svg>
+      </div>
+
       {/* Content */}
       <motion.div
         className="relative z-40 text-center px-6 max-w-4xl mx-auto"

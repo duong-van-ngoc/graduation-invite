@@ -57,6 +57,14 @@ export default function InvitationCard() {
       {/* Hào quang nền */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[150px] pointer-events-none" />
 
+      {/* Vòng tròn công nghệ đồng tâm xoay chậm nền thiệp */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] md:w-[600px] md:h-[600px] pointer-events-none opacity-10 select-none z-0">
+        <svg className="w-full h-full animate-[spin_240s_linear_infinite]" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="90" stroke="rgba(250, 204, 21, 0.1)" strokeWidth="0.3" fill="none" strokeDasharray="4, 8" />
+          <circle cx="100" cy="100" r="70" stroke="rgba(250, 204, 21, 0.08)" strokeWidth="0.4" fill="none" strokeDasharray="30, 10" />
+        </svg>
+      </div>
+
       {/* 3D Card Container */}
       <motion.div
         className="max-w-xl mx-auto perspective-[1000px]"
@@ -132,7 +140,7 @@ export default function InvitationCard() {
               <p className="text-muted text-sm md:text-base leading-relaxed max-w-sm mx-auto">
                 {guestName === "Bạn" ? (
                   <>
-                    Trân trọng kính mời Quý Thầy/Cô, Anh/Chị, Bạn bè và Gia đình <br />
+                    Trân trọng kính mời Bạn bè và Gia đình <br />
                     đến tham dự buổi lễ tốt nghiệp của
                   </>
                 ) : (
