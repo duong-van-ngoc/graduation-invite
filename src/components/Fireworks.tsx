@@ -103,8 +103,8 @@ class Rocket {
     this.vy = dy / steps;
     this.color = color;
     this.isDead = false;
-    // 35% tỷ lệ nổ ra quả pháo hoa cầu vồng siêu to khổng lồ
-    this.isRainbow = Math.random() < 0.35;
+    // 15% tỷ lệ nổ ra quả pháo hoa cầu vồng siêu to, 85% là pháo đơn sắc sắc nét (đỏ, xanh, tím...) để tránh nhàm chán
+    this.isRainbow = Math.random() < 0.15;
     this.trail = [];
   }
 
