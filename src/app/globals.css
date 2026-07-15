@@ -16,6 +16,7 @@
   /* Fonts */
   --font-heading: var(--font-playfair);
   --font-body: var(--font-inter);
+  --font-script: var(--font-great-vibes);
 
   /* Spacing */
   --spacing-section: 8rem;
