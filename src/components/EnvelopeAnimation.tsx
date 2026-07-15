@@ -57,16 +57,16 @@ export default function EnvelopeAnimation({
 
   const startOpening = () => {
     if (phase !== "idle") return;
-    // Bước 1: nắp mở
+    // Bước 1: Mở nắp (0ms -> 1200ms)
     setPhase("opening");
-    // Bước 2: ánh vàng sáng lên từ trong (sau 1100ms)
-    setTimeout(() => setPhase("glowing"), 1100);
-    // Bước 3: bắt đầu fade → báo parent hiện content (sau thêm 700ms)
+ 
+    // Bước 2: Khi nắp vừa mở xong (sau 1200ms), bắt đầu fade out phong bì và hiện thiệp mời luôn
     setTimeout(() => {
       setPhase("fading");
       onStartFading?.();
-    }, 1800);
-    // Bước 4: hoàn tất (sau thêm 1200ms fade)
+    }, 1200);
+ 
+    // Bước 3: Hoàn tất (sau 3200ms - giữ đốm sáng bay lơ lửng tiếp đè lên thiệp mời thêm 2 giây)
     setTimeout(() => {
       setPhase("done");
       onComplete();
@@ -83,82 +83,72 @@ export default function EnvelopeAnimation({
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
-          key="envelope-overlay"
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-          style={{ background: "#070C15" }}
-          initial={{ opacity: 1 }}
-          animate={{ opacity: isFading ? 0 : 1 }}
-          transition={
-            isFading
-              ? { duration: 1.3, ease: "easeInOut" }
-              : { duration: 0 }
-          }
-          exit={{ opacity: 0, transition: { duration: 0.4 } }}
-        >
-          {/* Nền: hạt vàng tản mạn */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {Array.from({ length: 40 }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute rounded-full bg-[#D4AF37]"
-                style={{
-                  width: Math.random() * 2.5 + 0.5,
-                  height: Math.random() * 2.5 + 0.5,
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  opacity: Math.random() * 0.4 + 0.1,
-                }}
-                animate={{
-                  opacity: [
-                    Math.random() * 0.2 + 0.05,
-                    Math.random() * 0.5 + 0.2,
-                    Math.random() * 0.2 + 0.05,
-                  ],
-                  y: [0, -8, 0],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 4,
-                  repeat: Infinity,
-                  delay: Math.random() * 3,
-                  ease: "easeInOut",
-                }}
-              />
-            ))}
-          </div>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-none">
 
-          {/* Ánh sáng vàng tỏa ra khi mở (background glow) */}
-          <AnimatePresence>
-            {isGlowing && (
-              <motion.div
-                key="bg-glow"
-                className="absolute inset-0 pointer-events-none"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.9 }}
-              >
-                <div
-                  className="absolute"
+          {/* Lớp nền tối - Fade out khi bắt đầu chuyển cảnh */}
+          <motion.div
+            className="absolute inset-0 bg-[#070C15] z-0 pointer-events-auto"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: isFading ? 0 : 1 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+          />
+
+          {/* Lớp hạt bụi đốm sáng bay lên - Nằm ở z-index cao đè lên thiệp mời ở dưới và fade out trễ hơn hẳn */}
+          <motion.div
+            className="absolute inset-0 overflow-hidden pointer-events-none z-20"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: phase === "fading" ? [1, 1, 0] : 1 }}
+            transition={{
+              duration: 2.0,
+              times: [0, 0.6, 1], // Giữ sáng 60% thời gian (1.2s đầu), 40% còn lại (0.8s) mới fade out về 0
+              ease: "easeInOut"
+            }}
+          >
+            {Array.from({ length: 120 }).map((_, i) => {
+              const startX = Math.random() * 40 + 30; // Tập trung xung quanh khu vực phong bì (30% - 70%)
+              const delay = Math.random() * 3;
+              const duration = 2.5 + Math.random() * 3;
+              const size = Math.random() * 3 + 1;
+              return (
+                <motion.div
+                  key={i}
+                  className="absolute rounded-full"
                   style={{
-                    top: "30%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    width: "600px",
-                    height: "400px",
-                    background:
-                      "radial-gradient(ellipse, rgba(212,175,55,0.18) 0%, rgba(180,120,10,0.08) 50%, transparent 70%)",
-                    filter: "blur(30px)",
+                    width: size,
+                    height: size,
+                    left: `${startX}%`,
+                    bottom: "20%",
+                    background: "radial-gradient(circle, #FFEAA7 0%, #D4AF37 70%, transparent 100%)",
+                    boxShadow: "0 0 8px #FFD700, 0 0 15px #FF8C00",
+                  }}
+                  animate={
+                    phase !== "idle"
+                      ? {
+                        x: [0, (Math.random() - 0.5) * 160],
+                        y: [0, -180 - Math.random() * 200],
+                        opacity: [0, 1, 0.8, 0],
+                        scale: [0.4, 1.3, 0.2],
+                      }
+                      : {
+                        y: [0, -20, 0],
+                        opacity: [0.1, 0.4, 0.1],
+                      }
+                  }
+                  transition={{
+                    duration: phase !== "idle" ? duration : 4 + Math.random() * 4,
+                    repeat: Infinity,
+                    delay: phase !== "idle" ? delay : Math.random() * 2,
+                    ease: "easeOut",
                   }}
                 />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              );
+            })}
+          </motion.div>
 
-          {/* ── PHONG BÌ ── */}
+          {/* ── PHONG BÌ & CAMERA SHAKE ── */}
           <motion.div
             ref={containerRef}
-            className="relative z-10 w-[340px] h-[230px] md:w-[500px] md:h-[340px] cursor-pointer select-none"
+            className="relative z-10 w-[340px] h-[230px] md:w-[500px] md:h-[340px] cursor-pointer select-none pointer-events-auto"
             style={
               phase === "idle"
                 ? { rotateX, rotateY, transformStyle: "preserve-3d" }
@@ -168,124 +158,138 @@ export default function EnvelopeAnimation({
             onMouseLeave={handleMouseLeave}
             onClick={startOpening}
             initial={{ scale: 0.82, opacity: 0, y: 40 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
+            animate={
+              isFading
+                ? { opacity: 0, scale: 0.95 }
+                : phase === "idle"
+                  ? { scale: 1, opacity: 1, y: 0 }
+                  : phase === "opening"
+                    ? {
+                      scale: [1, 1.05, 1.03],
+                      x: [0, -1, 1, -1, 0],
+                      y: [0, 1, -1, 0, 0],
+                      transition: { duration: 1.1 }
+                    }
+                    : { scale: 1.08, opacity: 1 }
+            }
             transition={{ type: "spring", stiffness: 80, damping: 14, delay: 0.3 }}
-            whileHover={phase === "idle" ? { scale: 1.03 } : {}}
+            whileHover={phase === "idle" ? { scale: 1.04 } : {}}
           >
-            {/* Thân phong bì — xanh đen sang trọng */}
+            {/* LỚP BACK PHONG BÌ (MẶT SAU) */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden"
               style={{
                 background:
-                  "linear-gradient(145deg, #0F1F35 0%, #162840 40%, #0A1520 100%)",
-                border: "1.5px solid rgba(212,175,55,0.35)",
+                  "linear-gradient(135deg, #0a1320 0%, #112035 45%, #050a10 100%)",
+                border: "1.8px solid rgba(212,175,55,0.45)",
                 boxShadow:
-                  "0 35px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.1)",
+                  "0 40px 90px rgba(0,0,0,0.92), 0 0 40px rgba(212,175,55,0.15), inset 0 1px 0 rgba(255,255,255,0.1)",
                 transform: "translateZ(0px)",
               }}
             >
-              {/* Họa tiết vân giấy mờ */}
+              {/* Texture giấy mờ mịn chất lượng cao */}
               <div
-                className="absolute inset-0 opacity-[0.035]"
+                className="absolute inset-0 opacity-[0.06]"
                 style={{
                   backgroundImage:
                     "radial-gradient(circle, #D4AF37 1px, transparent 1px)",
-                  backgroundSize: "18px 18px",
+                  backgroundSize: "14px 14px",
                 }}
               />
-              {/* Đường gấp chéo phong bì */}
+
+              {/* Quét sáng chéo tương lai (Metallic Light Sweep) */}
+              {phase === "idle" && (
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, transparent 0%, rgba(255, 220, 120, 0) 25%, rgba(255, 220, 120, 0.22) 50%, rgba(255, 220, 120, 0) 75%, transparent 100%)",
+                    width: "40%",
+                    height: "100%",
+                    transform: "skewX(-25deg)",
+                  }}
+                  animate={{
+                    left: ["-50%", "150%"],
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "linear",
+                    delay: 0.15, // trễ hơn front một chút tạo hiệu ứng 3D khúc xạ thủy tinh
+                  }}
+                />
+              )}
+            </div>
+
+
+
+            {/* LỚP FRONT PHONG BÌ (MẶT TRƯỚC VỚI KHE CHỮ V) */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(145deg, #0F1F35 0%, #15273F 50%, #070d14 100%)",
+                clipPath: "polygon(0 35%, 50% 56%, 100% 35%, 100% 100%, 0 100%)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                filter: "drop-shadow(0 -5px 15px rgba(0,0,0,0.5))",
+                transform: "translateZ(10px)",
+              }}
+            >
+              {/* Texture giấy mờ mịn cho Front */}
+              <div
+                className="absolute inset-0 opacity-[0.06]"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(circle, #D4AF37 1px, transparent 1px)",
+                  backgroundSize: "14px 14px",
+                }}
+              />
+
+              {/* Hiệu ứng quét sáng tương lai chạy từ trái qua phải */}
+              {phase === "idle" && (
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, transparent 0%, rgba(255, 220, 120, 0) 25%, rgba(255, 220, 120, 0.22) 50%, rgba(255, 220, 120, 0) 75%, transparent 100%)",
+                    width: "40%",
+                    height: "100%",
+                    transform: "skewX(-25deg)",
+                  }}
+                  animate={{
+                    left: ["-50%", "150%"],
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+              )}
+              {/* Viền vàng góc nghiêng mặt trước */}
               <svg
                 className="absolute inset-0 w-full h-full"
                 viewBox="0 0 500 340"
                 preserveAspectRatio="none"
               >
-                {/* Bottom V-fold lines */}
                 <line
                   x1="0"
-                  y1="340"
+                  y1="119"
                   x2="250"
-                  y2="162"
-                  stroke="rgba(212,175,55,0.18)"
-                  strokeWidth="1.2"
+                  y2="190.4"
+                  stroke="rgba(212,175,55,0.4)"
+                  strokeWidth="1.5"
                 />
                 <line
                   x1="500"
-                  y1="340"
+                  y1="119"
                   x2="250"
-                  y2="162"
-                  stroke="rgba(212,175,55,0.18)"
-                  strokeWidth="1.2"
-                />
-                <line
-                  x1="0"
-                  y1="340"
-                  x2="500"
-                  y2="340"
-                  stroke="rgba(212,175,55,0.12)"
-                  strokeWidth="1"
+                  y2="190.4"
+                  stroke="rgba(212,175,55,0.4)"
+                  strokeWidth="1.5"
                 />
               </svg>
-              {/* Viền vàng bên trong */}
-              <div
-                className="absolute rounded-xl pointer-events-none"
-                style={{
-                  inset: "8px",
-                  border: "1px solid rgba(212,175,55,0.15)",
-                }}
-              />
             </div>
-
-            {/* Ánh sáng vàng từ bên trong khi mở nắp */}
-            <AnimatePresence>
-              {isGlowing && (
-                <motion.div
-                  key="inner-glow"
-                  className="absolute rounded-2xl pointer-events-none overflow-hidden"
-                  style={{ inset: 0, translateZ: "3px" }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.85 }}
-                >
-                  {/* Lớp sáng chính — vàng đậm ở giữa */}
-                  <div
-                    className="absolute"
-                    style={{
-                      bottom: 0,
-                      left: "10%",
-                      right: "10%",
-                      height: "85%",
-                      background:
-                        "radial-gradient(ellipse at 50% 80%, rgba(255,220,80,1) 0%, rgba(255,180,30,0.85) 25%, rgba(220,140,10,0.5) 55%, transparent 80%)",
-                      filter: "blur(6px)",
-                    }}
-                  />
-                  {/* Lớp sáng phụ — trắng ở tâm */}
-                  <div
-                    className="absolute"
-                    style={{
-                      bottom: "5%",
-                      left: "25%",
-                      right: "25%",
-                      height: "40%",
-                      background:
-                        "radial-gradient(ellipse, rgba(255,245,200,0.9) 0%, rgba(255,220,80,0.5) 50%, transparent 75%)",
-                      filter: "blur(12px)",
-                    }}
-                  />
-                  {/* Tia sáng nhỏ bắn ra */}
-                  <motion.div
-                    className="absolute inset-0"
-                    animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    style={{
-                      background:
-                        "radial-gradient(ellipse at 50% 60%, rgba(255,240,150,0.35) 0%, transparent 60%)",
-                    }}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* Nắp phong bì — xanh đen, xoay mở */}
             <motion.div
@@ -293,19 +297,20 @@ export default function EnvelopeAnimation({
               style={{
                 clipPath: "polygon(0 0, 100% 0, 50% 100%)",
                 transformOrigin: "top center",
-                translateZ: "15px",
+                translateZ: "12px",
               }}
               animate={isFlapped ? { rotateX: -180 } : { rotateX: 0 }}
-              transition={{ duration: 1.05, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 1.15, ease: [0.4, 0, 0.2, 1] }}
             >
               <div
                 className="w-full h-full relative overflow-hidden"
                 style={{
                   background:
                     "linear-gradient(160deg, #162840 0%, #0A1520 80%)",
+                  boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.6)",
                 }}
               >
-                {/* Viền vàng nắp */}
+                {/* Viền vàng nắp và bóng phản chiếu kim loại */}
                 <svg
                   className="absolute inset-0 w-full h-full"
                   viewBox="0 0 500 172"
@@ -316,84 +321,84 @@ export default function EnvelopeAnimation({
                     y1="1"
                     x2="250"
                     y2="171"
-                    stroke="rgba(212,175,55,0.45)"
-                    strokeWidth="1.5"
+                    stroke="rgba(212,175,55,0.6)"
+                    strokeWidth="1.8"
                   />
                   <line
                     x1="499"
                     y1="1"
                     x2="250"
                     y2="171"
-                    stroke="rgba(212,175,55,0.45)"
-                    strokeWidth="1.5"
+                    stroke="rgba(212,175,55,0.6)"
+                    strokeWidth="1.8"
                   />
                   <line
                     x1="1"
                     y1="1"
                     x2="499"
                     y2="1"
-                    stroke="rgba(212,175,55,0.3)"
-                    strokeWidth="1.5"
+                    stroke="rgba(212,175,55,0.4)"
+                    strokeWidth="1.8"
                   />
                 </svg>
-                {/* Ánh gradient vàng nhẹ */}
+                {/* Ánh phản quang nắp */}
                 <div
                   className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(to bottom, rgba(212,175,55,0.06) 0%, transparent 70%)",
+                      "linear-gradient(to bottom, rgba(255,255,255,0.04) 0%, transparent 60%)",
                   }}
                 />
               </div>
             </motion.div>
 
-            {/* Con dấu sáp — MÀU VÀNG */}
             <motion.div
-              className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2"
+              className="absolute top-[56%] left-[50%] -translate-x-1/2 -translate-y-1/2"
               style={{ translateZ: "22px" }}
-              animate={
-                isFlapped
-                  ? { scale: 0, opacity: 0, y: 20, transition: { duration: 0.3 } }
-                  : { scale: 1, opacity: 1, y: 0 }
-              }
+              animate={{
+                scale: 1,
+                filter: "drop-shadow(0 5px 12px rgba(0,0,0,0.55))",
+              }}
+              transition={{ duration: 0.8 }}
             >
-              {/* Vòng ngoài con dấu — vàng */}
+              {/* Vòng ngoài con dấu — vàng dập nổi 3D */}
               <div
                 className="relative w-[72px] h-[72px] rounded-full flex items-center justify-center"
                 style={{
                   background:
-                    "radial-gradient(circle at 38% 35%, #F5D060 0%, #D4AF37 45%, #A07825 75%, #7A5A10 100%)",
+                    "radial-gradient(circle at 35% 35%, #FFF099 0%, #D4AF37 40%, #AA8015 75%, #6A4E0A 100%)",
                   boxShadow:
-                    "0 6px 28px rgba(212,175,55,0.55), 0 2px 8px rgba(0,0,0,0.5), inset 0 2px 6px rgba(255,255,255,0.28), inset 0 -2px 4px rgba(0,0,0,0.35)",
-                  border: "1.5px solid rgba(212,175,55,0.7)",
+                    "0 8px 32px rgba(212,175,55,0.65), 0 3px 12px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.45), inset 0 -3px 6px rgba(0,0,0,0.55)",
+                  border: "1.8px solid rgba(255,225,120,0.85)",
                 }}
               >
-                {/* Vòng khắc chạm */}
+                {/* Vòng khắc chạm sâu */}
                 <div
                   className="absolute rounded-full"
                   style={{
                     inset: "6px",
-                    border: "1.5px solid rgba(120,80,10,0.5)",
+                    border: "1.5px solid rgba(90,60,10,0.7)",
+                    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.5)",
                   }}
                 />
                 {/* Icon mũ tốt nghiệp */}
                 <svg
-                  className="w-8 h-8 fill-current"
+                  className="w-8 h-8 fill-current drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.65)]"
                   style={{ color: "#3B2800" }}
                   viewBox="0 0 24 24"
                 >
                   <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
                   <path d="M5 13.18v4l7 3.82 7-3.82v-4L12 17l-7-3.82z" />
                 </svg>
-                {/* Ánh bóng vàng */}
+                {/* Ánh sáng bóng vàng xéo */}
                 <div
                   className="absolute top-2 left-3 rounded-full"
                   style={{
                     width: "22px",
                     height: "10px",
-                    background: "rgba(255,255,255,0.25)",
+                    background: "rgba(255,255,255,0.35)",
                     transform: "rotate(-30deg)",
-                    filter: "blur(2px)",
+                    filter: "blur(1.5px)",
                   }}
                 />
               </div>
@@ -401,9 +406,9 @@ export default function EnvelopeAnimation({
               {/* Vòng ping gợi ý */}
               {phase === "idle" && (
                 <>
-                  <span className="absolute -inset-3 rounded-full border border-[#D4AF37]/40 animate-ping opacity-55 pointer-events-none" />
+                  <span className="absolute -inset-3 rounded-full border border-[#D4AF37]/50 animate-ping opacity-60 pointer-events-none" />
                   <span
-                    className="absolute -inset-6 rounded-full border border-[#D4AF37]/15 animate-ping opacity-30 pointer-events-none"
+                    className="absolute -inset-6 rounded-full border border-[#D4AF37]/25 animate-ping opacity-35 pointer-events-none"
                     style={{ animationDelay: "0.5s" }}
                   />
                 </>
@@ -417,7 +422,7 @@ export default function EnvelopeAnimation({
               <motion.p
                 key="hint"
                 className="absolute bottom-16 text-[11px] tracking-[0.25em] uppercase select-none"
-                style={{ color: "rgba(212,175,55,0.55)" }}
+                style={{ color: "rgba(212,175,55,0.75)", textShadow: "0 0 8px rgba(212,175,55,0.3)" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.25 } }}
@@ -427,7 +432,7 @@ export default function EnvelopeAnimation({
               </motion.p>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

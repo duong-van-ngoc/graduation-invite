@@ -28,12 +28,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{
-            opacity:
-              envelopeState === "showing"
-                ? 0
-                : envelopeState === "revealing"
-                ? 0.25        // mờ mờ thấy phía sau phong bì
-                : 1,          // hoàn toàn rõ
+            opacity: envelopeState === "showing" ? 0 : 1,
           }}
           transition={{ duration: 1.4, ease: "easeOut" }}
         >
