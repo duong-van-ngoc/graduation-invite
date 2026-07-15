@@ -8,7 +8,7 @@ import { Calendar, Clock, MapPin, Sparkles } from "lucide-react";
 
 export default function InvitationCard() {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [guestName, setGuestName] = useState("Quý Khách");
+  const [guestName, setGuestName] = useState("Bạn");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -49,21 +49,7 @@ export default function InvitationCard() {
       {/* Background accents */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[150px]" />
 
-      {/* Section Title */}
-      <motion.div
-        className="text-center mb-16"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <p className="text-accent text-sm uppercase tracking-[0.3em] mb-4">
-          Kính mời
-        </p>
-        <h2 className="font-heading text-3xl md:text-5xl font-bold text-surface">
-          Thiệp Mời
-        </h2>
-      </motion.div>
+
 
       {/* 3D Card */}
       <motion.div
@@ -123,7 +109,7 @@ export default function InvitationCard() {
                 {STUDENT.name}
               </p>
               <p className="text-muted text-sm mt-1">
-                {STUDENT.major} — {STUDENT.university}
+                {STUDENT.university}
               </p>
             </div>
 

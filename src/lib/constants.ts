@@ -12,15 +12,15 @@ export const STUDENT = {
 // Event information
 export const EVENT = {
   title: "Lễ Tốt Nghiệp",
-  date: new Date("2026-08-15T08:00:00+07:00"),
-  venue: "Hội trường Nhà Văn hóa Thanh Niên",
-  address: "4 Phạm Ngọc Thạch, Bến Nghé, Quận 1, TP.HCM",
+  date: new Date("2026-07-26T08:00:00+07:00"),
+  venue: "Hội trường tầng 2 | Tòa nhà A9-A10 | Đại học Phenikaa",
+  address: "Đường Nguyễn Trác, Yên Nghĩa, Hà Đông, Hà Nội",
   time: "08:00 - 11:30",
   dressCode: "Trang phục lịch sự",
   mapUrl:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.5177580567037!2d106.69449231526!3d10.77539059233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f3a9ba1d5a7%3A0x5c9d0854f7d9b5ac!2zTmjDoCBWxINuIGjDs2EgVGhhbmggTmnDqm4!5e0!3m2!1svi!2svn!4v1700000000000",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.975417646696!2d105.74558237589259!3d20.9667799806495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313453303d8916d9%3A0x868b446a9a7a0300!2sPhenikaa%20University!5e0!3m2!1sen!2s!4v1721039800000!5m2!1sen!2s",
   directionsUrl:
-    "https://www.google.com/maps/dir/?api=1&destination=4+Ph%E1%BA%A1m+Ng%E1%BB%8Dc+Th%E1%BA%A1ch,+B%E1%BA%BFn+Ngh%C3%A9,+Qu%E1%BA%ADn+1,+TP.HCM",
+    "https://www.google.com/maps/dir/?api=1&destination=Phenikaa+University+Nguyen+Trac+Yen+Nghia+Ha+Dong+Hanoi",
   calendarUrl: "",
 } as const;
 
