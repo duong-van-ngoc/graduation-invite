@@ -20,7 +20,7 @@ class Particle {
     this.y = y;
     const angle = Math.random() * Math.PI * 2;
     // Tăng tốc độ ban đầu cho pháo nở to và lan rộng hơn
-    const maxSpeed = isBig ? 7.5 : 5.5;
+    const maxSpeed = isBig ? 10.5 : 7.5;
     const speed = Math.random() * maxSpeed + 2.5;
     this.vx = Math.cos(angle) * speed;
     this.vy = Math.sin(angle) * speed - Math.random() * 2;
@@ -50,7 +50,7 @@ class Particle {
 
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    
+
     // Vẽ quầng sáng tỏa nhẹ (bloom glow) - nhanh gấp 10 lần shadowBlur của Canvas
     ctx.globalAlpha = this.alpha * 0.25;
     ctx.fillStyle = this.color;
@@ -126,7 +126,7 @@ class Rocket {
 
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    
+
     // Vẽ quầng sáng tỏa đầu quả đạn pháo
     ctx.globalAlpha = 0.3;
     ctx.fillStyle = this.color;
@@ -198,25 +198,66 @@ export default function Fireworks() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       spawnTimer++;
-      // Định kỳ bắn từ góc trái và góc phải lên nhiều hơn (mỗi 35 frame)
-      if (spawnTimer % 35 === 0 || spawnTimer === 10) {
-        // Góc dưới bên trái bắn lên phía giữa trái
-        const leftTargetX = Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
-        const leftTargetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
-        rockets.push(
-          new Rocket(0, canvas.height, leftTargetX, leftTargetY, getRandomColor())
-        );
-
-        // Góc dưới bên phải bắn lên phía giữa phải
-        setTimeout(() => {
-          if (!canvas) return;
-          const rightTargetX = canvas.width - (Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05));
-          const rightTargetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
-          rockets.push(
-            new Rocket(canvas.width, canvas.height, rightTargetX, rightTargetY, getRandomColor())
-          );
-        }, 300);
+      if (spawnTimer >= 850) {
+        spawnTimer = 0;
       }
+
+      // ── NHỊP ĐIỆU PHÁO HOA THEO KỊCH BẢN (CHOREOGRAPHED SHOW RHYTHM) ──
+      
+      // Nhịp 1: Bắn chậm dạo đầu (Frames 0 - 300 ~ 5 giây) - Mỗi 60 frame bắn 1 quả luân phiên
+      if (spawnTimer < 300) {
+        if (spawnTimer % 60 === 0) {
+          const isLeft = (spawnTimer / 60) % 2 === 0;
+          if (isLeft) {
+            const targetX = Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
+            const targetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
+            rockets.push(new Rocket(0, canvas.height, targetX, targetY, getRandomColor()));
+          } else {
+            const targetX = canvas.width - (Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05));
+            const targetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
+            rockets.push(new Rocket(canvas.width, canvas.height, targetX, targetY, getRandomColor()));
+          }
+        }
+      }
+      // Nhịp 2: Bắn nhanh cao trào (Frames 300 - 540 ~ 4 giây) - Mỗi 20 frame bắn 1 quả xen kẽ liên tục
+      else if (spawnTimer >= 300 && spawnTimer < 540) {
+        const activeTimer = spawnTimer - 300;
+        if (activeTimer % 20 === 0) {
+          const isLeft = (activeTimer / 20) % 2 === 0;
+          if (isLeft) {
+            const targetX = Math.random() * (canvas.width * 0.3) + (canvas.width * 0.1);
+            const targetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
+            rockets.push(new Rocket(0, canvas.height, targetX, targetY, getRandomColor()));
+          } else {
+            const targetX = canvas.width - (Math.random() * (canvas.width * 0.3) + (canvas.width * 0.1));
+            const targetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
+            rockets.push(new Rocket(canvas.width, canvas.height, targetX, targetY, getRandomColor()));
+          }
+        }
+      }
+      // Nhịp 3: ĐẠI TIỆC QUÉT SÓNG NHỊP CUỐI (Frames 540 - 700 ~ 3 giây) - 20 quả bắn liên tiếp từ trái sang phải
+      else if (spawnTimer >= 540 && spawnTimer < 700) {
+        const activeTimer = spawnTimer - 540;
+        if (activeTimer % 8 === 0) {
+          const i = activeTimer / 8;
+          if (i < 20) {
+            // Vị trí xuất phát quét dần từ 0 đến width
+            const startX = (i / 19) * canvas.width;
+            // Điểm nổ hướng chéo lên trên bầu trời
+            const targetX = startX + (Math.random() * 80 - 40);
+            const targetY = Math.random() * (canvas.height * 0.3) + (canvas.height * 0.15);
+            
+            const rocket = new Rocket(startX, canvas.height, targetX, targetY, getRandomColor());
+            // Tạo điểm nhấn cầu vồng tại điểm đầu, điểm giữa và điểm kết thúc dải quét sóng
+            if (i === 0 || i === 10 || i === 19) {
+              rocket.isRainbow = true;
+            }
+            rockets.push(rocket);
+          }
+        }
+      }
+      // Nhịp 4: Lắng đọng & Reset (Frames 700 - 850) - Ngừng bắn để tàn pháo rơi hết sạch
+
 
       // Cập nhật & Vẽ đạn pháo
       for (let i = rockets.length - 1; i >= 0; i--) {
