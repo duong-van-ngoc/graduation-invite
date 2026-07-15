@@ -159,19 +159,18 @@ export default function Fireworks() {
     window.addEventListener("resize", handleResize);
     handleResize();
 
-    // Tông màu pháo hoa đa sắc sinh động, rực rỡ và lễ hội
+    // Tông màu pháo hoa đa sắc cực kỳ rực rỡ, phát sáng neon siêu nổi bật
     const colors = [
-      "#FACC15", // Vàng kim
-      "#F59E0B", // Cam ấm
-      "#FF2E93", // Hồng Neon
-      "#00F2FE", // Xanh ngọc điện tử
-      "#3B82F6", // Xanh dương sáng
-      "#A855F7", // Tím Neon
-      "#10B981", // Xanh lục bảo
-      "#EC4899", // Hồng phấn
-      "#00FF87", // Xanh lá Neon
-      "#FF5E62", // Đỏ cam hoàng hôn
-      "#FFFBEB", // Trắng ánh vàng
+      "#FF0055", // Đỏ Neon cực sáng
+      "#00FF66", // Xanh lá Neon cực sáng
+      "#00FFFF", // Xanh ngọc Cyan sáng rực
+      "#FFFF00", // Vàng chanh sáng chói
+      "#FF00FF", // Tím hồng Magenta Neon
+      "#FF9900", // Cam Neon rực rỡ
+      "#9900FF", // Tím Neon đậm đà
+      "#0099FF", // Xanh Sky sáng rực
+      "#FF00AA", // Hồng rực rỡ
+      "#FFFFFF", // Trắng tinh khiết phát sáng
     ];
 
     const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
