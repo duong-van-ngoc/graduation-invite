@@ -63,7 +63,6 @@ export default function HomePage() {
 
               {/* Cảnh 2 — Thiệp mời chi tiết */}
               <InvitationCard />
-
               {/* Divider */}
               <div className="relative h-16">
                 <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />

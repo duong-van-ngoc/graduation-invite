@@ -86,6 +86,78 @@ export default function InvitationCard() {
         </svg>
       </div>
 
+      {/* Trang trí rìa bên trái - Ruy-băng vàng uốn lượn và hoa văn HUD */}
+      <motion.div
+        className="hidden lg:block absolute left-[5%] xl:left-[10%] top-1/2 -translate-y-1/2 w-32 h-80 pointer-events-none select-none z-10 text-accent"
+        animate={{ y: ["-50%", "-54%", "-50%"] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <svg className="w-full h-full" viewBox="0 0 100 250">
+          <defs>
+            <linearGradient id="gold-ribbon-left" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.7" />
+              <stop offset="30%" stopColor="#FDE68A" stopOpacity="0.4" />
+              <stop offset="70%" stopColor="#FACC15" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#D4AF37" stopOpacity="0.15" />
+            </linearGradient>
+          </defs>
+          <path d="M15 25 C45 85, 75 55, 45 125 C15 195, 85 175, 55 235" fill="none" stroke="url(#gold-ribbon-left)" strokeWidth="3" strokeLinecap="round" />
+          {/* Target Reticle */}
+          <circle cx="45" cy="125" r="3" fill="#FACC15" opacity="0.5" />
+          <line x1="33" y1="125" x2="57" y2="125" stroke="rgba(250,204,21,0.25)" strokeWidth="0.5" />
+          <line x1="45" y1="113" x2="45" y2="137" stroke="rgba(250,204,21,0.25)" strokeWidth="0.5" />
+        </svg>
+      </motion.div>
+
+      <motion.div
+        className="absolute bottom-1/4 left-[8%] xl:left-[12%] hidden lg:block z-10 text-accent/30 pointer-events-none select-none"
+        animate={{
+          y: [0, 15, 0],
+          rotate: [0, -8, 0],
+        }}
+        transition={{
+          duration: 5.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <GraduationCap className="w-9 h-9 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.2)]" />
+      </motion.div>
+
+      {/* Trang trí rìa bên phải - Ruy-băng vàng uốn lượn và mũ tốt nghiệp */}
+      <motion.div
+        className="hidden lg:block absolute right-[5%] xl:right-[10%] top-1/2 -translate-y-1/2 w-32 h-80 pointer-events-none select-none z-10 text-accent"
+        animate={{ y: ["-50%", "-46%", "-50%"] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <svg className="w-full h-full" viewBox="0 0 100 250">
+          <defs>
+            <linearGradient id="gold-ribbon-right" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.7" />
+              <stop offset="40%" stopColor="#FDE68A" stopOpacity="0.5" />
+              <stop offset="80%" stopColor="#FACC15" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#EAB308" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+          <path d="M85 35 C55 75, 25 105, 65 155 C95 195, 35 185, 55 225" fill="none" stroke="url(#gold-ribbon-right)" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+      </motion.div>
+
+      <motion.div
+        className="absolute top-1/4 right-[8%] xl:right-[12%] hidden lg:block z-10 text-accent/35 pointer-events-none select-none"
+        animate={{
+          y: [0, -15, 0],
+          rotate: [0, 10, 0],
+        }}
+        transition={{
+          duration: 4.8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <GraduationCap className="w-11 h-11 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.2)]" />
+      </motion.div>
+
       {/* 3D Card Container */}
       <motion.div
         className="max-w-md mx-auto perspective-[1000px]"
