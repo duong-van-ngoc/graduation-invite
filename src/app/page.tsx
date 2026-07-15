@@ -40,6 +40,19 @@ export default function HomePage() {
               {/* Lớp lưới công nghệ tương lai */}
               <div className="absolute inset-0 tech-grid pointer-events-none z-0" />
 
+              {/* Đường quét Laser dọc màn hình */}
+              <div className="laser-scanner" />
+
+              {/* Hào quang nền màu ngọc - xanh ngọc công nghệ & vàng kim */}
+              <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[rgba(6,182,212,0.03)] blur-[150px] pointer-events-none z-0" />
+              <div className="absolute top-1/4 left-0 w-[500px] h-[500px] rounded-full bg-[rgba(250,204,21,0.03)] blur-[150px] pointer-events-none z-0" />
+
+              {/* Họa tiết ngắm mục tiêu HUD ở 4 góc màn hình desktop */}
+              <div className="hidden lg:block fixed top-6 left-6 w-8 h-8 border-t-2 border-l-2 border-accent/20 pointer-events-none z-50" />
+              <div className="hidden lg:block fixed top-6 right-6 w-8 h-8 border-t-2 border-r-2 border-accent/20 pointer-events-none z-50" />
+              <div className="hidden lg:block fixed bottom-6 left-6 w-8 h-8 border-b-2 border-l-2 border-accent/20 pointer-events-none z-50" />
+              <div className="hidden lg:block fixed bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-accent/20 pointer-events-none z-50" />
+
               {/* Cảnh 1 — Hero Section (hiện ngay sau phong bì) */}
               <HeroSection showParticles={envelopeState === "hidden"} />
 

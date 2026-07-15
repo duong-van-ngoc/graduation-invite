@@ -31,18 +31,11 @@ export default function CountdownSection() {
         >
           <div className="flex items-center justify-center gap-3 mb-4">
             <Timer className="w-5 h-5 text-accent" />
-            <p className="text-accent text-sm uppercase tracking-[0.3em]">
+            <p className="text-accent text-2xl uppercase tracking-[0.3em]">
               Đếm ngược
             </p>
           </div>
-          <h2 className="font-heading text-3xl md:text-5xl font-bold text-surface mb-4">
-            {isExpired ? "Ngày trọng đại đã đến!" : "Còn bao lâu nữa?"}
-          </h2>
-          <p className="text-muted max-w-md mx-auto">
-            {isExpired
-              ? "Cảm ơn bạn đã đồng hành!"
-              : "Đếm ngược đến khoảnh khắc vinh quang"}
-          </p>
+
         </motion.div>
 
         {/* Countdown Grid */}

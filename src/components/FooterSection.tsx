@@ -76,10 +76,10 @@ export default function FooterSection() {
                 animate={
                   isInView
                     ? {
-                        y: [-20, -150, -300],
-                        rotate: [0, 180, 360],
-                        opacity: [1, 1, 0],
-                      }
+                      y: [-20, -150, -300],
+                      rotate: [0, 180, 360],
+                      opacity: [1, 1, 0],
+                    }
                     : {}
                 }
                 transition={{
@@ -104,7 +104,7 @@ export default function FooterSection() {
           transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           <h2 className="font-heading text-3xl md:text-5xl font-bold text-gradient mb-6 leading-tight">
-            Cảm ơn vì đã đồng hành cùng tôi trong hành trình này
+            Cảm ơn các bạn
           </h2>
 
           <div className="w-16 h-[2px] bg-gradient-to-r from-transparent via-accent/50 to-transparent mx-auto mb-6" />
@@ -116,7 +116,7 @@ export default function FooterSection() {
           </p>
 
           <div className="flex items-center justify-center gap-2 text-accent">
-            <span className="text-muted text-sm">Với tất cả tình yêu</span>
+
             <Heart className="w-4 h-4 fill-accent text-accent animate-pulse-slow" />
           </div>
 

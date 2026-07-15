@@ -109,7 +109,7 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
               <circle cx="50" cy="50" r="45" stroke="rgba(250, 204, 21, 0.3)" strokeWidth="0.3" fill="none" strokeDasharray="2, 5" />
             </svg>
           </div>
-          
+
           {/* Khung ảnh tỏa sáng */}
           <motion.div
             variants={scaleIn}
@@ -124,20 +124,9 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
             </div>
           </motion.div>
 
-          {/* Floating mini HUD tag */}
-          <div className="absolute -top-1 right-2 bg-accent text-[#0F172A] text-[9px] font-bold px-2 py-0.5 rounded-full z-20 border border-primary flex items-center gap-1 select-none shadow-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0F172A] animate-ping" />
-            GRADUATED
-          </div>
 
-          {/* University Logo Badge */}
-          <div className="absolute -bottom-1 -right-1 w-12 h-12 rounded-full bg-primary p-[3px] border border-accent/40 shadow-xl flex items-center justify-center z-20">
-            <img
-              src={STUDENT.logo}
-              alt={STUDENT.universityShort}
-              className="w-full h-full object-contain rounded-full"
-            />
-          </div>
+
+
         </div>
 
         {/* ── 2. UNIVERSITY NAME ── */}
@@ -179,56 +168,7 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
           className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl mb-16 px-4 z-10"
         >
           {/* Card 1: Chuyên ngành */}
-          <motion.div
-            variants={staggerItem}
-            className="glass-light rounded-xl p-4 border border-accent/15 text-center relative overflow-hidden group hover:border-accent/40 transition-all duration-300"
-          >
-            {/* Tech Notched Corners */}
-            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-accent/45" />
-            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent/45" />
-            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent/45" />
-            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-accent/45" />
-            
-            <div className="flex justify-center mb-2">
-              <Terminal className="w-5 h-5 text-accent/70 group-hover:text-accent group-hover:scale-110 transition-all" />
-            </div>
-            <p className="text-accent/60 text-[10px] uppercase tracking-[0.2em] mb-1 font-body">Chuyên Ngành</p>
-            <p className="text-surface font-semibold text-sm tracking-wide">{STUDENT.major}</p>
-          </motion.div>
 
-          {/* Card 2: Niên khóa */}
-          <motion.div
-            variants={staggerItem}
-            className="glass-light rounded-xl p-4 border border-accent/15 text-center relative overflow-hidden group hover:border-accent/40 transition-all duration-300"
-          >
-            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-accent/45" />
-            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent/45" />
-            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent/45" />
-            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-accent/45" />
-            
-            <div className="flex justify-center mb-2">
-              <Cpu className="w-5 h-5 text-accent/70 group-hover:text-accent group-hover:scale-110 transition-all" />
-            </div>
-            <p className="text-accent/60 text-[10px] uppercase tracking-[0.2em] mb-1 font-body">Niên Khóa</p>
-            <p className="text-surface font-semibold text-sm tracking-wide">{STUDENT.course} (2021 — 2025)</p>
-          </motion.div>
-
-          {/* Card 3: Cơ sở đào tạo */}
-          <motion.div
-            variants={staggerItem}
-            className="glass-light rounded-xl p-4 border border-accent/15 text-center relative overflow-hidden group hover:border-accent/40 transition-all duration-300"
-          >
-            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-accent/45" />
-            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent/45" />
-            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent/45" />
-            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-accent/45" />
-            
-            <div className="flex justify-center mb-2">
-              <GraduationCap className="w-5 h-5 text-accent/70 group-hover:text-accent group-hover:scale-110 transition-all" />
-            </div>
-            <p className="text-accent/60 text-[10px] uppercase tracking-[0.2em] mb-1 font-body">Đại Học</p>
-            <p className="text-surface font-semibold text-sm tracking-wide">{STUDENT.universityShort}</p>
-          </motion.div>
         </motion.div>
 
         {/* ── 5. SCROLL GUIDE (Futuristic Mouse scroll indicator) ── */}

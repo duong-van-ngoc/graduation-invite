@@ -22,9 +22,7 @@ export default function MapSection() {
               Địa điểm
             </p>
           </div>
-          <h2 className="font-heading text-3xl md:text-5xl font-bold text-surface mb-4">
-            Nơi Diễn Ra
-          </h2>
+
           <p className="text-muted max-w-lg mx-auto">
             {EVENT.venue}
           </p>
