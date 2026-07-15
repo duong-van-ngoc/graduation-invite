@@ -53,7 +53,7 @@ export default function EnvelopeAnimation({
 
   // Sinh các thuộc tính ngẫu nhiên cố định cho hạt bụi để tránh render lại liên tục (tối ưu hóa hiệu năng)
   const staticParticles = useMemo(() => {
-    const count = isMobile ? 60 : 120;
+    const count = isMobile ? 150 : 300;
     return Array.from({ length: count }).map((_, i) => {
       const startX = Math.random() * 100;
       const size = Math.random() * 2 + 1;
