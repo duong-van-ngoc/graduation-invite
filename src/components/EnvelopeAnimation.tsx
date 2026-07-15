@@ -59,18 +59,20 @@ export default function EnvelopeAnimation({
     if (phase !== "idle") return;
     // Bước 1: Mở nắp (0ms -> 1200ms)
     setPhase("opening");
- 
-    // Bước 2: Khi nắp vừa mở xong (sau 1200ms), bắt đầu fade out phong bì và hiện thiệp mời luôn
+
+    // Bước 2: Khi nắp vừa mở xong (sau 1200ms), hạt bắt đầu bay lên
+    // Chúng ta đợi thêm 1.3 giây nữa (tổng cộng 2500ms từ đầu) cho hạt bay cao và mờ dần,
+    // rồi mới bắt đầu fade out phong bì và hiện trang chính (thiệp mời bắt đầu xuất hiện)
     setTimeout(() => {
       setPhase("fading");
       onStartFading?.();
-    }, 1200);
- 
-    // Bước 3: Hoàn tất (sau 3200ms - giữ đốm sáng bay lơ lửng tiếp đè lên thiệp mời thêm 2 giây)
+    }, 2500);
+
+    // Bước 3: Hoàn tất sau 5000ms (giúp đốm sáng bay lâu hơn)
     setTimeout(() => {
       setPhase("done");
       onComplete();
-    }, 3200);
+    }, 5000);
   };
 
   const isFlapped = phase !== "idle";
@@ -97,18 +99,18 @@ export default function EnvelopeAnimation({
           <motion.div
             className="absolute inset-0 overflow-hidden pointer-events-none z-20"
             initial={{ opacity: 1 }}
-            animate={{ opacity: phase === "fading" ? [1, 1, 0] : 1 }}
+            animate={{ opacity: phase === "fading" ? [1, 0.8, 0] : 1 }}
             transition={{
-              duration: 2.0,
-              times: [0, 0.6, 1], // Giữ sáng 60% thời gian (1.2s đầu), 40% còn lại (0.8s) mới fade out về 0
+              duration: 2.5,
+              times: [0, 0.5, 1], // Giữ sáng một lúc rồi mới fade out về 0
               ease: "easeInOut"
             }}
           >
             {Array.from({ length: 120 }).map((_, i) => {
               const startX = Math.random() * 40 + 30; // Tập trung xung quanh khu vực phong bì (30% - 70%)
               const delay = Math.random() * 3;
-              const duration = 2.5 + Math.random() * 3;
-              const size = Math.random() * 3 + 1;
+              const duration = 4.0 + Math.random() * 3; // Bay lâu hơn (4s - 7s)
+              const size = Math.random() * 4 + 2.5; // Kích thước đốm to hơn một chút
               return (
                 <motion.div
                   key={i}
@@ -118,16 +120,16 @@ export default function EnvelopeAnimation({
                     height: size,
                     left: `${startX}%`,
                     bottom: "20%",
-                    background: "radial-gradient(circle, #FFEAA7 0%, #D4AF37 70%, transparent 100%)",
-                    boxShadow: "0 0 8px #FFD700, 0 0 15px #FF8C00",
+                    background: "radial-gradient(circle, #FFFFFF 0%, #FFEAA7 40%, #D4AF37 80%, transparent 100%)",
+                    boxShadow: "0 0 12px #FFD700, 0 0 22px #FF9F00, 0 0 35px rgba(255,215,0,0.5)",
                   }}
                   animate={
                     phase !== "idle"
                       ? {
-                        x: [0, (Math.random() - 0.5) * 160],
-                        y: [0, -180 - Math.random() * 200],
-                        opacity: [0, 1, 0.8, 0],
-                        scale: [0.4, 1.3, 0.2],
+                        x: [0, (Math.random() - 0.5) * 200],
+                        y: [0, -320 - Math.random() * 350], // Bay cao hơn nhiều
+                        opacity: [0, 1, 0.7, 0], // Dần dần mờ đi khi bay lên cao
+                        scale: [0.4, 1.4, 0.1],
                       }
                       : {
                         y: [0, -20, 0],
@@ -136,7 +138,7 @@ export default function EnvelopeAnimation({
                   }
                   transition={{
                     duration: phase !== "idle" ? duration : 4 + Math.random() * 4,
-                    repeat: Infinity,
+                    repeat: phase !== "idle" ? 0 : Infinity, // Chỉ bay lên 1 lần duy nhất, không lặp lại
                     delay: phase !== "idle" ? delay : Math.random() * 2,
                     ease: "easeOut",
                   }}
