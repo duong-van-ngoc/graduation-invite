@@ -5,19 +5,25 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { STUDENT, EVENT } from "@/lib/constants";
 import { Clock, MapPin, GraduationCap, Shirt, Heart, Scroll } from "lucide-react";
 
-export default function InvitationCard() {
+interface InvitationCardProps {
+  guestName?: string;
+}
+
+export default function InvitationCard({ guestName: propGuestName }: InvitationCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [guestName, setGuestName] = useState("Bạn");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (propGuestName) {
+      setGuestName(propGuestName);
+    } else if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const toParam = params.get("to") || params.get("name");
       if (toParam) {
         setGuestName(toParam);
       }
     }
-  }, []);
+  }, [propGuestName]);
 
   // 3D tilt effect
   const x = useMotionValue(0);
@@ -269,7 +275,7 @@ export default function InvitationCard() {
               <p className="text-muted text-sm md:text-base leading-relaxed max-w-sm mx-auto">
                 {guestName === "Bạn" ? (
                   <>
-                    Trân trọng kính mời Bạn bè và Gia đình <br />
+                    Trân trọng kính mời Bạn bè  <br />
                     đến tham dự buổi lễ tốt nghiệp của
                   </>
                 ) : (

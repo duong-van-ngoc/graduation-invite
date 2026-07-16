@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { sfx } from "@/lib/audio";
 
 class Particle {
   x: number;
@@ -41,6 +42,10 @@ class Particle {
       this.trail.shift();
     }
     this.vx *= this.friction;
+    // Thêm lực gió thổi nhẹ dạt ngang sang phải (ảnh hưởng lớn hơn khi hạt tàn dần)
+    const wind = 0.012;
+    this.vx += wind * (1 - this.alpha);
+
     this.vy *= this.friction;
     this.vy += this.gravity;
     this.x += this.vx;
@@ -51,15 +56,22 @@ class Particle {
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
 
-    // Vẽ quầng sáng tỏa nhẹ (bloom glow) - nhanh gấp 10 lần shadowBlur của Canvas
-    ctx.globalAlpha = this.alpha * 0.25;
+    // Tạo hiệu ứng nhấp nháy lấp lánh (shimmer) khi hạt tàn dần
+    let displayAlpha = this.alpha;
+    if (this.alpha < 0.6) {
+      const twinkle = Math.sin(Date.now() * 0.025 + this.x * 0.5) * 0.35 + 0.65;
+      displayAlpha = Math.max(0, this.alpha * twinkle);
+    }
+
+    // Vẽ quầng sáng tỏa nhẹ (bloom glow)
+    ctx.globalAlpha = displayAlpha * 0.25;
     ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size * 2.2, 0, Math.PI * 2);
     ctx.fill();
 
     // Vẽ lõi hạt pháo sáng
-    ctx.globalAlpha = this.alpha;
+    ctx.globalAlpha = displayAlpha;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
@@ -91,15 +103,15 @@ class Rocket {
   isRainbow: boolean;
   trail: { x: number; y: number }[];
 
-  constructor(sx: number, sy: number, tx: number, ty: number, color: string) {
+  constructor(sx: number, sy: number, tx: number, ty: number, color: string, customSteps?: number) {
     this.x = sx;
     this.y = sy;
     this.tx = tx;
     this.ty = ty;
     const dx = tx - sx;
     const dy = ty - sy;
-    // Tăng số steps lên (từ 40-55 thành 110-140) để quả pháo bay lên thật chậm rãi, thanh lịch, tránh bay vèo vèo quá nhanh
-    const steps = 110 + Math.random() * 30;
+    // Tăng số steps lên để quả pháo bay lên thật chậm rãi, thanh lịch. Cho phép truyền customSteps nếu muốn bắn dàn nhanh hơn
+    const steps = customSteps || (110 + Math.random() * 30);
     this.vx = dx / steps;
     this.vy = dy / steps;
     this.color = color;
@@ -199,38 +211,62 @@ export default function Fireworks() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       spawnTimer++;
-      if (spawnTimer >= 3000) {
+      if (spawnTimer >= 1500) {
         spawnTimer = 0;
       }
 
-      // ── NHỊP ĐIỆU PHÁO HOA ĐỀU ĐẶN 4 HƯỚNG BẮN (4-DIRECTION REGULAR RHYTHM) ──
-      // Bắn pháo hoa đều đặn mỗi 110 frame (~1.8 giây ở 60fps), xoay vòng qua 4 điểm bắn chia đều dưới đáy màn hình
-      if (spawnTimer % 110 === 0) {
-        const launchIndex = Math.floor(spawnTimer / 110) % 4;
-        let startX = 0;
-        let targetX = 0;
+      // ── NHỊP ĐIỆU PHÁO HOA KẾT HỢP TUẦN HOÀN (CHOREOGRAPHED COMBINED SHOW) ──
 
-        if (launchIndex === 0) {
-          // Hướng 1: Góc dưới bên trái
-          startX = canvas.width * 0.08;
-          targetX = startX + Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
-        } else if (launchIndex === 1) {
-          // Hướng 2: Trái trung tâm
-          startX = canvas.width * 0.36;
-          targetX = startX + (Math.random() - 0.5) * (canvas.width * 0.15);
-        } else if (launchIndex === 2) {
-          // Hướng 3: Phải trung tâm
-          startX = canvas.width * 0.64;
-          targetX = startX + (Math.random() - 0.5) * (canvas.width * 0.15);
-        } else {
-          // Hướng 4: Góc dưới bên phải
-          startX = canvas.width * 0.92;
-          targetX = startX - (Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05));
+      // Nhịp 1: Bắn thong thả nhã nhặn (Frames 0 - 1100 ~ 18.3 giây) - Mỗi 60 frames (1 giây) bắn 1 quả xoay vòng 4 hướng
+      if (spawnTimer < 1100) {
+        if (spawnTimer % 70 === 0) {
+          const launchIndex = Math.floor(spawnTimer / 70) % 4;
+          let startX = 0;
+          let targetX = 0;
+
+          if (launchIndex === 0) {
+            startX = canvas.width * 0.08;
+            targetX = startX + Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
+          } else if (launchIndex === 1) {
+            startX = canvas.width * 0.36;
+            targetX = startX + (Math.random() - 0.5) * (canvas.width * 0.15);
+          } else if (launchIndex === 2) {
+            startX = canvas.width * 0.64;
+            targetX = startX + (Math.random() - 0.5) * (canvas.width * 0.15);
+          } else {
+            startX = canvas.width * 0.92;
+            targetX = startX - (Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05));
+          }
+
+          const targetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
+          rockets.push(new Rocket(startX, canvas.height, targetX, targetY, getRandomColor()));
+          sfx.playRocketLaunch();
         }
-
-        const targetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
-        rockets.push(new Rocket(startX, canvas.height, targetX, targetY, getRandomColor()));
       }
+      // Nhịp 2: ĐẠI TIỆC QUÉT SÓNG NHỊP CUỐI - DÀN 30 QUẢ (Frames 1100 - 1340 ~ 4 giây) - Cứ mỗi 8 frames bắn 1 quả đuổi nhau từ trái qua phải
+      else if (spawnTimer >= 1100 && spawnTimer < 1340) {
+        const activeTimer = spawnTimer - 1100;
+        if (activeTimer % 8 === 0) {
+          const i = activeTimer / 8;
+          if (i < 30) {
+            // Xuất phát quét từ trái sang phải
+            const startX = (i / 29) * canvas.width;
+            const targetX = startX + (Math.random() * 80 - 40);
+            const targetY = Math.random() * (canvas.height * 0.3) + (canvas.height * 0.15);
+
+            // Bắn pháo hoa trong dàn quét sóng bay hơi nhanh hơn một chút (customSteps = 80) để tạo sự hoành tráng
+            const rocket = new Rocket(startX, canvas.height, targetX, targetY, getRandomColor(), 80);
+
+            // Tạo điểm nhấn cầu vồng nổ to ở các mốc quan trọng trong dàn quét
+            if (i === 0 || i === 10 || i === 20 || i === 29) {
+              rocket.isRainbow = true;
+            }
+            rockets.push(rocket);
+            sfx.playRocketLaunch();
+          }
+        }
+      }
+      // Nhịp 3: Lắng đọng & Reset (Frames 1340 - 1500 ~ 2.6 giây) - Ngừng bắn hoàn toàn để tàn pháo rơi hết sạch
 
       // Cập nhật & Vẽ đạn pháo
       for (let i = rockets.length - 1; i >= 0; i--) {
@@ -239,6 +275,7 @@ export default function Fireworks() {
         r.draw(ctx);
 
         if (r.isDead) {
+          sfx.playExplosion(r.isRainbow);
           // Số lượng hạt tàn pháo tương ứng: Quả cầu vồng siêu to (isRainbow) sẽ bắn ra nhiều hạt hơn hẳn
           const numParticles = r.isRainbow ? 140 : 90;
           for (let p = 0; p < numParticles; p++) {

@@ -8,6 +8,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { useState, useEffect, useRef, useMemo } from "react";
+import { sfx } from "@/lib/audio";
 
 // Phase flow:
 // idle             → phong bì xanh đen nổi, hover nghiêng 3D
@@ -25,7 +26,7 @@ type Phase =
   | "done";
 
 interface EnvelopeAnimationProps {
-  onComplete: () => void;
+  onComplete: (guestName: string) => void;
   onStartFading?: () => void; // báo parent bắt đầu hiện nội dung
 }
 
@@ -45,6 +46,7 @@ export default function EnvelopeAnimation({
   onStartFading,
 }: EnvelopeAnimationProps) {
   const [phase, setPhase] = useState<Phase>("idle");
+  const [inputName, setInputName] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
@@ -88,10 +90,10 @@ export default function EnvelopeAnimation({
 
   // Sinh các hạt bụi vàng từ con dấu khi nó tan rã (seal_dissolving)
   const sealParticles = useMemo(() => {
-    const count = isMobile ? 25 : 45;
+    const count = isMobile ? 50 : 90;
     return Array.from({ length: count }).map((_, i) => {
       const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
-      const velocity = 50 + Math.random() * 120;
+      const velocity = 60 + Math.random() * 140;
       const size = Math.random() * 3 + 2;
       const delay = Math.random() * 0.25;
       return {
@@ -128,6 +130,10 @@ export default function EnvelopeAnimation({
   const startOpening = () => {
     if (phase !== "idle") return;
 
+    // Phát âm thanh mở phong bì & kích hoạt nhạc nền
+    sfx.playOpenEnvelope();
+    sfx.playBGM();
+
     // 1. Click con dấu -> Con dấu phát sáng (0ms -> 400ms)
     setPhase("seal_glowing");
 
@@ -150,7 +156,7 @@ export default function EnvelopeAnimation({
     // 5. Hoàn tất (sau 2500ms)
     setTimeout(() => {
       setPhase("done");
-      onComplete();
+      onComplete(inputName.trim() || "Bạn");
     }, 6500);
   };
 
@@ -313,6 +319,20 @@ export default function EnvelopeAnimation({
             }}
             whileHover={phase === "idle" ? { scale: 1.04 } : {}}
           >
+            {/* Ánh sáng nền động (Ambient Glow) tỏa ra phía sau khi hover phong bì */}
+            {phase === "idle" && (
+              <motion.div
+                className="absolute -inset-14 rounded-[32px] pointer-events-none z-0"
+                style={{
+                  background: "radial-gradient(circle, rgba(255, 215, 0, 0.22) 0%, rgba(212, 175, 55, 0.05) 50%, transparent 70%)",
+                  filter: "blur(24px)",
+                  transform: "translateZ(-15px)", // Nằm lùi về phía sau trong không gian 3D
+                }}
+                initial={{ opacity: 0.4, scale: 0.95 }}
+                whileHover={{ opacity: 1, scale: 1.05 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              />
+            )}
             {/* LỚP BACK PHONG BÌ (MẶT SAU) */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden"
@@ -659,7 +679,8 @@ export default function EnvelopeAnimation({
               <div className="absolute top-[56%] left-[50%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30" style={{ transformStyle: "preserve-3d", transform: "translateZ(25px)" }}>
                 {sealParticles.map((p) => {
                   const xTarget = Math.cos(p.angle) * p.velocity;
-                  const yTarget = Math.sin(p.angle) * p.velocity;
+                  // Bay hướng bổng lên trên
+                  const yTarget = Math.sin(p.angle) * p.velocity - 120;
                   return (
                     <motion.div
                       key={p.id}
@@ -674,13 +695,13 @@ export default function EnvelopeAnimation({
                       }}
                       initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                       animate={{
-                        x: xTarget,
-                        y: yTarget,
-                        opacity: 0,
-                        scale: 0.2,
+                        x: [0, xTarget * 0.5, xTarget],
+                        y: [0, yTarget * 0.4, yTarget],
+                        opacity: [1, 0.9, 0],
+                        scale: [1, 1.2, 0.2],
                       }}
                       transition={{
-                        duration: 0.8 + Math.random() * 0.4,
+                        duration: 1.0 + Math.random() * 0.5,
                         delay: p.delay,
                         ease: "easeOut",
                       }}
@@ -776,6 +797,30 @@ export default function EnvelopeAnimation({
               )}
             </motion.div>
           </motion.div>
+
+          {/* Ô nhập tên khách mời */}
+          {phase === "idle" && (
+            <motion.div
+              className="mt-6 md:mt-8 flex flex-col items-center gap-3 pointer-events-auto z-20"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Nhập tên của bạn..."
+                  value={inputName}
+                  onChange={(e) => setInputName(e.target.value)}
+                  className="w-[260px] md:w-[300px] px-4 py-2.5 rounded-xl border border-[#D4AF37]/35 bg-[#0a1320]/80 text-[#FFF099] placeholder-[#D4AF37]/50 text-center text-sm md:text-base focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8),_0_4px_12px_rgba(0,0,0,0.5)] font-serif"
+                />
+                <div className="absolute inset-0 rounded-xl pointer-events-none border border-transparent shadow-[0_0_10px_rgba(212,175,55,0.1)]" />
+              </div>
+              <p className="text-[11px] md:text-xs tracking-wider text-[#D4AF37]/75 font-serif italic">
+                * Nhập tên của bạn và nhấn con dấu để mở thiệp
+              </p>
+            </motion.div>
+          )}
 
 
           {/* Định nghĩa Gradient vàng nhũ dùng chung */}
