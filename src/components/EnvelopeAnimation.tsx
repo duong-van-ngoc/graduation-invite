@@ -29,6 +29,17 @@ interface EnvelopeAnimationProps {
   onStartFading?: () => void; // báo parent bắt đầu hiện nội dung
 }
 
+const luxuryPaperPattern = {
+  backgroundImage: `
+    linear-gradient(135deg, rgba(212,175,55,0.035) 25%, transparent 25%), 
+    linear-gradient(225deg, rgba(212,175,55,0.035) 25%, transparent 25%), 
+    linear-gradient(45deg, rgba(212,175,55,0.035) 25%, transparent 25%), 
+    linear-gradient(315deg, rgba(212,175,55,0.035) 25%, transparent 25%)
+  `,
+  backgroundSize: "32px 32px",
+  backgroundPosition: "0 0, 0 16px, 16px -16px, -16px 0px"
+};
+
 export default function EnvelopeAnimation({
   onComplete,
   onStartFading,
@@ -314,14 +325,10 @@ export default function EnvelopeAnimation({
                 transform: "translateZ(0px)",
               }}
             >
-              {/* Texture giấy mờ mịn chất lượng cao */}
+              {/* Texture giấy mờ mịn chất lượng cao (Diamond Grid) */}
               <div
-                className="absolute inset-0 opacity-[0.06]"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle, #D4AF37 1px, transparent 1px)",
-                  backgroundSize: "14px 14px",
-                }}
+                className="absolute inset-0 opacity-[0.6]"
+                style={luxuryPaperPattern}
               />
 
               {/* Quét sáng chéo tương lai (Metallic Light Sweep) */}
@@ -362,14 +369,10 @@ export default function EnvelopeAnimation({
                 transform: "translateZ(10px)",
               }}
             >
-              {/* Texture giấy mờ mịn cho Front */}
+              {/* Texture giấy mờ mịn cho Front (Diamond Grid) */}
               <div
-                className="absolute inset-0 opacity-[0.06]"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle, #D4AF37 1px, transparent 1px)",
-                  backgroundSize: "14px 14px",
-                }}
+                className="absolute inset-0 opacity-[0.6]"
+                style={luxuryPaperPattern}
               />
 
               {/* Hiệu ứng quét sáng tương lai chạy từ trái qua phải */}
@@ -393,18 +396,27 @@ export default function EnvelopeAnimation({
                   }}
                 />
               )}
-              {/* Viền vàng góc nghiêng mặt trước */}
+              {/* Viền vàng và các đường nét Art Deco mặt trước */}
               <svg
                 className="absolute inset-0 w-full h-full"
                 viewBox="0 0 500 340"
                 preserveAspectRatio="none"
               >
+                {/* Viền ngoài dưới của Front */}
+                <path
+                  d="M 1.5 119 L 1.5 338.5 L 498.5 338.5 L 498.5 119"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
+
+                {/* Viền chéo khe chữ V chính */}
                 <line
                   x1="0"
                   y1="119"
                   x2="250"
                   y2="190.4"
-                  stroke="rgba(212,175,55,0.4)"
+                  stroke="url(#gold-grad)"
                   strokeWidth="1.5"
                 />
                 <line
@@ -412,9 +424,91 @@ export default function EnvelopeAnimation({
                   y1="119"
                   x2="250"
                   y2="190.4"
-                  stroke="rgba(212,175,55,0.4)"
+                  stroke="url(#gold-grad)"
                   strokeWidth="1.5"
                 />
+
+                {/* Đường đứt nét song song tạo viền đôi cho khe chữ V */}
+                <line
+                  x1="0"
+                  y1="126"
+                  x2="250"
+                  y2="197.4"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="0.8"
+                  strokeOpacity="0.5"
+                  strokeDasharray="4 2"
+                />
+                <line
+                  x1="500"
+                  y1="126"
+                  x2="250"
+                  y2="197.4"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="0.8"
+                  strokeOpacity="0.5"
+                  strokeDasharray="4 2"
+                />
+              </svg>
+
+              {/* Họa tiết góc Art Deco - Góc dưới bên trái */}
+              <svg
+                className="absolute bottom-3 left-3 w-10 h-10 pointer-events-none opacity-80"
+                viewBox="0 0 48 48"
+                fill="none"
+              >
+                <path
+                  d="M 2 0 L 2 46 L 48 46"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 6 0 L 6 42 L 48 42"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="0.8"
+                  strokeOpacity="0.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 2 34 L 14 46 M 6 34 L 18 46 M 2 26 L 22 46"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="0.8"
+                  strokeOpacity="0.6"
+                />
+                <circle cx="10" cy="38" r="1.5" fill="#D4AF37" />
+              </svg>
+
+              {/* Họa tiết góc Art Deco - Góc dưới bên phải */}
+              <svg
+                className="absolute bottom-3 right-3 w-10 h-10 pointer-events-none opacity-80"
+                viewBox="0 0 48 48"
+                fill="none"
+              >
+                <path
+                  d="M 46 0 L 46 46 L 0 46"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 42 0 L 42 42 L 0 42"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="0.8"
+                  strokeOpacity="0.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 46 34 L 34 46 M 42 34 L 30 46 M 46 26 L 26 46"
+                  stroke="url(#gold-grad)"
+                  strokeWidth="0.8"
+                  strokeOpacity="0.6"
+                />
+                <circle cx="38" cy="38" r="1.5" fill="#D4AF37" />
               </svg>
             </div>
 
@@ -455,6 +549,19 @@ export default function EnvelopeAnimation({
                   boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.6)",
                 }}
               >
+                {/* Texture giấy mờ mịn cho Nắp (Diamond Grid) */}
+                <div
+                  className="absolute inset-0 opacity-[0.5]"
+                  style={luxuryPaperPattern}
+                />
+
+                {/* Tiêu đề chữ nhũ vàng ép kim */}
+                <div className="absolute top-[22%] left-1/2 -translate-x-1/2 text-center pointer-events-none w-[80%] z-10">
+                  <span className="text-[10px] md:text-[13px] font-serif uppercase tracking-[0.25em] font-semibold bg-gradient-to-r from-[#FFF099] via-[#D4AF37] to-[#AA8015] bg-clip-text text-transparent drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.85)]">
+                    Graduation Invitation
+                  </span>
+                </div>
+
                 {/* Viền vàng nắp và bóng phản chiếu kim loại */}
                 <svg
                   className="absolute inset-0 w-full h-full"
@@ -466,7 +573,7 @@ export default function EnvelopeAnimation({
                     y1="1"
                     x2="250"
                     y2="171"
-                    stroke="rgba(212,175,55,0.6)"
+                    stroke="url(#gold-grad)"
                     strokeWidth="1.8"
                   />
                   <line
@@ -474,7 +581,7 @@ export default function EnvelopeAnimation({
                     y1="1"
                     x2="250"
                     y2="171"
-                    stroke="rgba(212,175,55,0.6)"
+                    stroke="url(#gold-grad)"
                     strokeWidth="1.8"
                   />
                   <line
@@ -482,8 +589,58 @@ export default function EnvelopeAnimation({
                     y1="1"
                     x2="499"
                     y2="1"
-                    stroke="rgba(212,175,55,0.4)"
+                    stroke="url(#gold-grad)"
                     strokeWidth="1.8"
+                  />
+
+                  {/* Viền đứt nét song song tinh tế cho nắp */}
+                  <line
+                    x1="12"
+                    y1="4"
+                    x2="250"
+                    y2="165"
+                    stroke="url(#gold-grad)"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.5"
+                    strokeDasharray="4 2"
+                  />
+                  <line
+                    x1="488"
+                    y1="4"
+                    x2="250"
+                    y2="165"
+                    stroke="url(#gold-grad)"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.5"
+                    strokeDasharray="4 2"
+                  />
+
+                  {/* Họa tiết Art Deco nắp trái */}
+                  <path
+                    d="M 12 6 L 62 6 M 12 11 L 52 11 M 12 16 L 42 16"
+                    stroke="url(#gold-grad)"
+                    strokeWidth="1"
+                    strokeOpacity="0.6"
+                  />
+                  <path
+                    d="M 17 6 L 17 26 L 37 6"
+                    stroke="url(#gold-grad)"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.4"
+                  />
+
+                  {/* Họa tiết Art Deco nắp phải */}
+                  <path
+                    d="M 488 6 L 438 6 M 488 11 L 448 11 M 488 16 L 458 16"
+                    stroke="url(#gold-grad)"
+                    strokeWidth="1"
+                    strokeOpacity="0.6"
+                  />
+                  <path
+                    d="M 483 6 L 483 26 L 463 6"
+                    stroke="url(#gold-grad)"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.4"
                   />
                 </svg>
                 {/* Ánh phản quang nắp */}
@@ -620,6 +777,17 @@ export default function EnvelopeAnimation({
             </motion.div>
           </motion.div>
 
+
+          {/* Định nghĩa Gradient vàng nhũ dùng chung */}
+          <svg style={{ width: 0, height: 0, position: 'absolute' }}>
+            <defs>
+              <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFF099" />
+                <stop offset="50%" stopColor="#D4AF37" />
+                <stop offset="100%" stopColor="#AA8015" />
+              </linearGradient>
+            </defs>
+          </svg>
 
         </div>
       )}
