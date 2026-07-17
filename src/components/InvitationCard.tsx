@@ -1,29 +1,89 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, useState } from "react";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { STUDENT, EVENT } from "@/lib/constants";
-import { Clock, MapPin, GraduationCap, Shirt, Heart, Scroll } from "lucide-react";
+import { Clock, MapPin, GraduationCap, Heart, Scroll } from "lucide-react";
 
 interface InvitationCardProps {
   guestName?: string;
 }
 
+function GuestNameReveal({ name }: { name: string }) {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <span className="relative mx-auto mt-1 block w-fit max-w-full px-4 pb-2">
+      <motion.span
+        className="relative z-10 block max-w-full break-words bg-clip-text font-script text-3xl leading-tight text-transparent md:text-4xl"
+        style={{
+          backgroundImage:
+            "linear-gradient(110deg, #D4AF37 0%, #FACC15 34%, #FFF7C2 50%, #FACC15 66%, #D4AF37 100%)",
+          backgroundSize: "250% 100%",
+          filter: "drop-shadow(0 0 10px rgba(250, 204, 21, 0.2))",
+        }}
+        initial={
+          shouldReduceMotion
+            ? false
+            : {
+                opacity: 0,
+                clipPath: "inset(0 100% 0 0)",
+                backgroundPosition: "200% 50%",
+              }
+        }
+        whileInView={{
+          opacity: 1,
+          clipPath: "inset(0 0% 0 0)",
+          backgroundPosition: "-35% 50%",
+        }}
+        viewport={{ once: true, amount: 0.85 }}
+        transition={{
+          opacity: { duration: 0.35 },
+          clipPath: {
+            duration: 1.25,
+            ease: [0.16, 1, 0.3, 1],
+          },
+          backgroundPosition: {
+            duration: 1.1,
+            delay: 0.85,
+            ease: "easeInOut",
+          },
+        }}
+      >
+        {name}
+      </motion.span>
+
+      <motion.span
+        className="absolute inset-x-2 bottom-0 h-px origin-left bg-gradient-to-r from-transparent via-accent/75 to-transparent shadow-[0_0_8px_rgba(250,204,21,0.35)]"
+        initial={shouldReduceMotion ? false : { scaleX: 0, opacity: 0 }}
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={{ once: true, amount: 0.85 }}
+        transition={{
+          duration: 0.9,
+          delay: 0.65,
+          ease: [0.16, 1, 0.3, 1],
+        }}
+        aria-hidden="true"
+      />
+    </span>
+  );
+}
+
 export default function InvitationCard({ guestName: propGuestName }: InvitationCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [guestName, setGuestName] = useState("Bạn");
+  const [queryGuestName] = useState(() => {
+    if (typeof window === "undefined") return "";
 
-  useEffect(() => {
-    if (propGuestName) {
-      setGuestName(propGuestName);
-    } else if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const toParam = params.get("to") || params.get("name");
-      if (toParam) {
-        setGuestName(toParam);
-      }
-    }
-  }, [propGuestName]);
+    const params = new URLSearchParams(window.location.search);
+    return params.get("to") || params.get("name") || "";
+  });
+  const guestName = propGuestName || queryGuestName || "Bạn";
 
   // 3D tilt effect
   const x = useMotionValue(0);
@@ -273,17 +333,13 @@ export default function InvitationCard({ guestName: propGuestName }: InvitationC
             {/* ── 3. LỜI MỜI CHI TIẾT (INVITATION MESSAGE) ── */}
             <div className="text-center mb-5 px-2">
               <p className="text-muted text-sm md:text-base leading-relaxed max-w-sm mx-auto">
-                {guestName === "Bạn" ? (
-                  <>
-                    Trân trọng kính mời Bạn bè  <br />
-                    đến tham dự buổi lễ tốt nghiệp của
-                  </>
-                ) : (
-                  <>
-                    Trân trọng kính mời <span className="text-surface font-semibold">{guestName}</span> <br />
-                    đến tham dự buổi lễ tốt nghiệp của
-                  </>
-                )}
+                Trân trọng kính mời
+              </p>
+              <GuestNameReveal
+                name={guestName === "Bạn" ? "Bạn bè" : guestName}
+              />
+              <p className="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-muted md:text-base">
+                đến tham dự buổi lễ tốt nghiệp của
               </p>
             </div>
 

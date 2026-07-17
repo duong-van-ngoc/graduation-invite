@@ -6,6 +6,10 @@ import dynamic from "next/dynamic";
 import ParticlesWrapper from "@/components/ParticlesWrapper";
 import HeroSection from "@/components/HeroSection";
 import EnvelopeAnimation from "@/components/EnvelopeAnimation";
+import {
+  SectionDivider,
+  SectionTransition,
+} from "@/components/SectionTransition";
 import { sfx } from "@/lib/audio";
 import { Music, Volume2, VolumeX } from "lucide-react";
 
@@ -13,7 +17,6 @@ import { Music, Volume2, VolumeX } from "lucide-react";
 const InvitationCard = dynamic(() => import("@/components/InvitationCard"), { ssr: false });
 const CountdownSection = dynamic(() => import("@/components/CountdownSection"), { ssr: false });
 const MapSection = dynamic(() => import("@/components/MapSection"), { ssr: false });
-const WishSection = dynamic(() => import("@/components/WishSection"), { ssr: false });
 const FooterSection = dynamic(() => import("@/components/FooterSection"), { ssr: false });
 const Fireworks = dynamic(() => import("@/components/Fireworks"), { ssr: false });
 
@@ -27,20 +30,23 @@ export default function HomePage() {
   const [volume, setVolume] = useState(0.22);
   const [showVolume, setShowVolume] = useState(false);
 
+  const syncExplosionVolume = (nextVolume: number) => {
+    sfx.setExplosionVolume(nextVolume === 0 ? 0 : Math.min(3, (nextVolume / 0.22) * 1.8));
+  };
+
   const handleToggleMute = () => {
     const isPlaying = sfx.toggleBGM();
-    setIsMuted(!isPlaying);
+    const nextMuted = !isPlaying;
+    setIsMuted(nextMuted);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
+    const nextMuted = val === 0;
     setVolume(val);
     sfx.setBGMVolume(val);
-    if (val === 0) {
-      setIsMuted(true);
-    } else if (isMuted) {
-      setIsMuted(false);
-    }
+    setIsMuted(nextMuted);
+    syncExplosionVolume(val);
   };
 
   return (
@@ -80,40 +86,41 @@ export default function HomePage() {
               <div className="hidden lg:block fixed bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-accent/20 pointer-events-none z-50" />
 
               {/* Cảnh 1 — Hero Section (hiện ngay sau phong bì) */}
-              <HeroSection showParticles={envelopeState === "hidden"} />
+              <SectionTransition>
+                <HeroSection showParticles={envelopeState === "hidden"} />
+              </SectionTransition>
 
               {/* Divider */}
-              <div className="relative h-20">
-                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-              </div>
+              <SectionDivider spacious />
 
               {/* Cảnh 2 — Thiệp mời chi tiết */}
-              <InvitationCard guestName={guestName} />
+              <SectionTransition>
+                <InvitationCard guestName={guestName} />
+              </SectionTransition>
+
               {/* Divider */}
-              <div className="relative h-16">
-                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-              </div>
+              <SectionDivider />
 
               {/* Cảnh 3 — Đếm ngược */}
-              <CountdownSection />
+              <SectionTransition>
+                <CountdownSection />
+              </SectionTransition>
 
               {/* Divider */}
-              <div className="relative h-16">
-                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-              </div>
+              <SectionDivider />
 
               {/* Cảnh 4 — Bản đồ */}
-              <MapSection />
+              <SectionTransition>
+                <MapSection />
+              </SectionTransition>
 
               {/* Divider */}
-              <div className="relative h-16">
-                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-              </div>
-
-
+              <SectionDivider />
 
               {/* Cảnh 6 — Lời cảm ơn */}
-              <FooterSection />
+              <SectionTransition>
+                <FooterSection />
+              </SectionTransition>
             </motion.div>
           )}
         </AnimatePresence>

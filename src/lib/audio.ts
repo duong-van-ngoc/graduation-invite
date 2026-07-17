@@ -4,12 +4,18 @@ class SoundEffects {
   private ctx: AudioContext | null = null;
   private bgm: HTMLAudioElement | null = null;
   private bgmPlaying = false;
+  private explosionVolume = 1.8;
 
   private init() {
     if (typeof window === "undefined") return;
     if (!this.ctx) {
       try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const AudioContextClass =
+          window.AudioContext ||
+          (window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AudioContextClass) {
+          throw new Error("Web Audio API is not supported in this browser");
+        }
         this.ctx = new AudioContextClass();
       } catch (e) {
         console.error("Web Audio API is not supported in this browser", e);
@@ -90,6 +96,10 @@ class SoundEffects {
   // Lấy âm lượng hiện tại của nhạc nền
   getBGMVolume(): number {
     return this.bgm ? this.bgm.volume : 0.22;
+  }
+
+  setExplosionVolume(vol: number) {
+    this.explosionVolume = Math.max(0, Math.min(3, vol));
   }
 
   // Tiếng mở phong bì (tiếng xoẹt giấy nhẹ nhàng, sang trọng)
@@ -173,7 +183,7 @@ class SoundEffects {
     osc.frequency.setValueAtTime(isBig ? 70 : 90, now);
     osc.frequency.exponentialRampToValueAtTime(15, now + 0.9);
 
-    oscGain.gain.setValueAtTime(isBig ? 0.32 : 0.18, now);
+    oscGain.gain.setValueAtTime((isBig ? 1 : 0.3) * this.explosionVolume, now);
     oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
 
     osc.connect(oscGain);
@@ -197,7 +207,7 @@ class SoundEffects {
     noiseFilter.frequency.exponentialRampToValueAtTime(40, now + 0.7);
 
     const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(isBig ? 0.25 : 0.15, now);
+    noiseGain.gain.setValueAtTime((isBig ? 0.42 : 0.25) * this.explosionVolume, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
 
     noise.connect(noiseFilter);
@@ -205,26 +215,6 @@ class SoundEffects {
     noiseGain.connect(ctx.destination);
     noise.start(now);
 
-    // 3. Tiếng nổ lách tách hạt lửa (Crackle pops)
-    if (isBig || Math.random() < 0.75) {
-      const crackleCount = isBig ? 10 : 5;
-      for (let i = 0; i < crackleCount; i++) {
-        const popTime = now + 0.08 + Math.random() * 0.42;
-        const popOsc = ctx.createOscillator();
-        const popGain = ctx.createGain();
-        
-        popOsc.type = "triangle";
-        popOsc.frequency.setValueAtTime(1100 + Math.random() * 900, popTime);
-        
-        popGain.gain.setValueAtTime(0.008, popTime);
-        popGain.gain.exponentialRampToValueAtTime(0.001, popTime + 0.035);
-        
-        popOsc.connect(popGain);
-        popGain.connect(ctx.destination);
-        popOsc.start(popTime);
-        popOsc.stop(popTime + 0.04);
-      }
-    }
   }
 }
 

@@ -172,14 +172,14 @@ export default function Fireworks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let animationFrameId: number;
-    let rockets: Rocket[] = [];
-    let particles: Particle[] = [];
+    const rockets: Rocket[] = [];
+    const particles: Particle[] = [];
 
     const handleResize = () => {
       canvas.width = window.innerWidth;
@@ -204,70 +204,111 @@ export default function Fireworks() {
 
     const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
+    const showDurationFrames = 7200; // 2 minutes at 60fps
     let spawnTimer = 0;
+
+    const launchRocket = (
+      startX: number,
+      targetX: number,
+      targetY: number,
+      customSteps?: number,
+      forceRainbow = false,
+    ) => {
+      const rocket = new Rocket(startX, canvas.height, targetX, targetY, getRandomColor(), customSteps);
+      if (forceRainbow) {
+        rocket.isRainbow = true;
+      }
+      rockets.push(rocket);
+    };
+
+    const launchPair = (targetYRatio = 0.3, customSteps?: number, forceRainbow = false) => {
+      const targetY = canvas.height * targetYRatio + Math.random() * canvas.height * 0.12;
+      launchRocket(
+        canvas.width * 0.08,
+        canvas.width * (0.3 + Math.random() * 0.12),
+        targetY,
+        customSteps,
+        forceRainbow,
+      );
+      launchRocket(
+        canvas.width * 0.92,
+        canvas.width * (0.58 + Math.random() * 0.12),
+        targetY + (Math.random() - 0.5) * 60,
+        customSteps,
+        forceRainbow,
+      );
+    };
 
     const animate = () => {
       // Clear canvas và giữ nền trong suốt hoàn toàn
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       spawnTimer++;
-      if (spawnTimer >= 1500) {
+      if (spawnTimer >= showDurationFrames) {
         spawnTimer = 0;
       }
 
-      // ── NHỊP ĐIỆU PHÁO HOA KẾT HỢP TUẦN HOÀN (CHOREOGRAPHED COMBINED SHOW) ──
-
-      // Nhịp 1: Bắn thong thả nhã nhặn (Frames 0 - 1100 ~ 18.3 giây) - Mỗi 60 frames (1 giây) bắn 1 quả xoay vòng 4 hướng
-      if (spawnTimer < 1100) {
-        if (spawnTimer % 70 === 0) {
-          const launchIndex = Math.floor(spawnTimer / 70) % 4;
-          let startX = 0;
-          let targetX = 0;
-
-          if (launchIndex === 0) {
-            startX = canvas.width * 0.08;
-            targetX = startX + Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05);
-          } else if (launchIndex === 1) {
-            startX = canvas.width * 0.36;
-            targetX = startX + (Math.random() - 0.5) * (canvas.width * 0.15);
-          } else if (launchIndex === 2) {
-            startX = canvas.width * 0.64;
-            targetX = startX + (Math.random() - 0.5) * (canvas.width * 0.15);
-          } else {
-            startX = canvas.width * 0.92;
-            targetX = startX - (Math.random() * (canvas.width * 0.25) + (canvas.width * 0.05));
-          }
-
-          const targetY = Math.random() * (canvas.height * 0.35) + (canvas.height * 0.15);
-          rockets.push(new Rocket(startX, canvas.height, targetX, targetY, getRandomColor()));
-          sfx.playRocketLaunch();
+      // 2-minute choreographed firework show.
+      if (spawnTimer < 900) {
+        if (spawnTimer % 95 === 0) {
+          const side = Math.floor(spawnTimer / 95) % 2;
+          const startX = side === 0 ? canvas.width * 0.08 : canvas.width * 0.92;
+          const targetX = side === 0
+            ? canvas.width * (0.24 + Math.random() * 0.18)
+            : canvas.width * (0.58 + Math.random() * 0.18);
+          const targetY = canvas.height * (0.18 + Math.random() * 0.22);
+          launchRocket(startX, targetX, targetY, 120, spawnTimer % 380 === 0);
+        }
+      } else if (spawnTimer < 2400) {
+        if (spawnTimer % 55 === 0) {
+          const lane = Math.floor(spawnTimer / 55) % 5;
+          const startX = canvas.width * (0.12 + lane * 0.19);
+          const targetX = startX + (Math.random() - 0.5) * canvas.width * 0.18;
+          const targetY = canvas.height * (0.16 + Math.random() * 0.3);
+          launchRocket(startX, targetX, targetY, 105, lane === 2 && spawnTimer % 220 === 0);
+        }
+      } else if (spawnTimer < 3600) {
+        if (spawnTimer % 120 === 0) {
+          launchPair(0.22, 92, true);
+        }
+        if (spawnTimer % 40 === 0) {
+          const center = canvas.width * (0.3 + Math.random() * 0.4);
+          launchRocket(canvas.width * 0.5, center, canvas.height * (0.18 + Math.random() * 0.25), 95);
+        }
+      } else if (spawnTimer < 4800) {
+        const waveFrame = spawnTimer - 3600;
+        if (waveFrame % 14 === 0) {
+          const waveIndex = Math.floor(waveFrame / 14) % 42;
+          const progress = waveIndex / 41;
+          const startX = progress * canvas.width;
+          const targetX = startX + (Math.random() - 0.5) * 110;
+          const targetY = canvas.height * (0.14 + Math.sin(progress * Math.PI) * 0.18 + Math.random() * 0.08);
+          launchRocket(startX, targetX, targetY, 78, waveIndex % 10 === 0);
+        }
+      } else if (spawnTimer < 6000) {
+        if (spawnTimer % 80 === 0) {
+          launchPair(0.28, 115);
+        }
+        if (spawnTimer % 210 === 0) {
+          launchRocket(canvas.width * 0.5, canvas.width * 0.5, canvas.height * 0.16, 95, true);
+        }
+      } else if (spawnTimer < 6900) {
+        const finaleFrame = spawnTimer - 6000;
+        if (finaleFrame % 16 === 0) {
+          const progress = (finaleFrame % 480) / 480;
+          const startX = progress * canvas.width;
+          launchRocket(
+            startX,
+            startX + (Math.random() - 0.5) * 130,
+            canvas.height * (0.12 + Math.random() * 0.32),
+            72,
+            finaleFrame % 96 === 0,
+          );
+        }
+        if (finaleFrame % 135 === 0) {
+          launchPair(0.2, 70, true);
         }
       }
-      // Nhịp 2: ĐẠI TIỆC QUÉT SÓNG NHỊP CUỐI - DÀN 30 QUẢ (Frames 1100 - 1340 ~ 4 giây) - Cứ mỗi 8 frames bắn 1 quả đuổi nhau từ trái qua phải
-      else if (spawnTimer >= 1100 && spawnTimer < 1340) {
-        const activeTimer = spawnTimer - 1100;
-        if (activeTimer % 8 === 0) {
-          const i = activeTimer / 8;
-          if (i < 30) {
-            // Xuất phát quét từ trái sang phải
-            const startX = (i / 29) * canvas.width;
-            const targetX = startX + (Math.random() * 80 - 40);
-            const targetY = Math.random() * (canvas.height * 0.3) + (canvas.height * 0.15);
-
-            // Bắn pháo hoa trong dàn quét sóng bay hơi nhanh hơn một chút (customSteps = 80) để tạo sự hoành tráng
-            const rocket = new Rocket(startX, canvas.height, targetX, targetY, getRandomColor(), 80);
-
-            // Tạo điểm nhấn cầu vồng nổ to ở các mốc quan trọng trong dàn quét
-            if (i === 0 || i === 10 || i === 20 || i === 29) {
-              rocket.isRainbow = true;
-            }
-            rockets.push(rocket);
-            sfx.playRocketLaunch();
-          }
-        }
-      }
-      // Nhịp 3: Lắng đọng & Reset (Frames 1340 - 1500 ~ 2.6 giây) - Ngừng bắn hoàn toàn để tàn pháo rơi hết sạch
-
       // Cập nhật & Vẽ đạn pháo
       for (let i = rockets.length - 1; i >= 0; i--) {
         const r = rockets[i];
@@ -277,7 +318,7 @@ export default function Fireworks() {
         if (r.isDead) {
           sfx.playExplosion(r.isRainbow);
           // Số lượng hạt tàn pháo tương ứng: Quả cầu vồng siêu to (isRainbow) sẽ bắn ra nhiều hạt hơn hẳn
-          const numParticles = r.isRainbow ? 140 : 90;
+          const numParticles = r.isRainbow ? 170 : 95;
           for (let p = 0; p < numParticles; p++) {
             // Nếu là quả pháo cầu vồng thì mỗi hạt một màu ngẫu nhiên, nếu không thì nổ đơn sắc (đỏ là đỏ, xanh là xanh)
             const particleColor = r.isRainbow ? getRandomColor() : r.color;
@@ -288,7 +329,8 @@ export default function Fireworks() {
       }
 
       // Giới hạn số lượng hạt tối đa để đảm bảo hiệu năng cực mượt trên di động
-      while (particles.length > 250) {
+      const maxParticles = window.innerWidth < 768 ? 360 : 760;
+      while (particles.length > maxParticles) {
         particles.shift();
       }
 
