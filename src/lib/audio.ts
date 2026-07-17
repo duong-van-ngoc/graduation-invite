@@ -4,7 +4,7 @@ class SoundEffects {
   private ctx: AudioContext | null = null;
   private bgm: HTMLAudioElement | null = null;
   private bgmPlaying = false;
-  private explosionVolume = 1.8;
+  private explosionVolume = 2.6;
 
   private init() {
     if (typeof window === "undefined") return;
@@ -99,7 +99,7 @@ class SoundEffects {
   }
 
   setExplosionVolume(vol: number) {
-    this.explosionVolume = Math.max(0, Math.min(3, vol));
+    this.explosionVolume = Math.max(0, Math.min(5, vol));
   }
 
   // Tiếng mở phong bì (tiếng xoẹt giấy nhẹ nhàng, sang trọng)
@@ -178,16 +178,23 @@ class SoundEffects {
 
     // 1. Tiếng bùm tần số thấp (Low frequency base boom)
     const osc = ctx.createOscillator();
+    const compressor = ctx.createDynamicsCompressor();
     const oscGain = ctx.createGain();
+    compressor.threshold.setValueAtTime(-14, now);
+    compressor.knee.setValueAtTime(18, now);
+    compressor.ratio.setValueAtTime(8, now);
+    compressor.attack.setValueAtTime(0.003, now);
+    compressor.release.setValueAtTime(0.18, now);
+    compressor.connect(ctx.destination);
     osc.type = "sine";
     osc.frequency.setValueAtTime(isBig ? 70 : 90, now);
     osc.frequency.exponentialRampToValueAtTime(15, now + 0.9);
 
-    oscGain.gain.setValueAtTime((isBig ? 1 : 0.3) * this.explosionVolume, now);
+    oscGain.gain.setValueAtTime((isBig ? 1.25 : 0.46) * this.explosionVolume, now);
     oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
 
     osc.connect(oscGain);
-    oscGain.connect(ctx.destination);
+    oscGain.connect(compressor);
     osc.start(now);
     osc.stop(now + 0.9);
 
@@ -207,12 +214,12 @@ class SoundEffects {
     noiseFilter.frequency.exponentialRampToValueAtTime(40, now + 0.7);
 
     const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime((isBig ? 0.42 : 0.25) * this.explosionVolume, now);
+    noiseGain.gain.setValueAtTime((isBig ? 0.56 : 0.34) * this.explosionVolume, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
 
     noise.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
-    noiseGain.connect(ctx.destination);
+    noiseGain.connect(compressor);
     noise.start(now);
 
   }

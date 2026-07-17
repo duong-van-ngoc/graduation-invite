@@ -336,7 +336,7 @@ export default function InvitationCard({ guestName: propGuestName }: InvitationC
                 Trân trọng kính mời
               </p>
               <GuestNameReveal
-                name={guestName === "Bạn" ? "Bạn bè" : guestName}
+                name={guestName}
               />
               <p className="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-muted md:text-base">
                 đến tham dự buổi lễ tốt nghiệp của

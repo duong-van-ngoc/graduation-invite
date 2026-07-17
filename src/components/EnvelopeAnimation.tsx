@@ -27,7 +27,7 @@ type Phase =
 
 interface EnvelopeAnimationProps {
   onComplete: (guestName: string) => void;
-  onStartFading?: () => void; // báo parent bắt đầu hiện nội dung
+  onStartFading?: (guestName: string) => void; // báo parent bắt đầu hiện nội dung
 }
 
 const luxuryPaperPattern = {
@@ -129,6 +129,7 @@ export default function EnvelopeAnimation({
 
   const startOpening = () => {
     if (phase !== "idle") return;
+    const submittedName = inputName.trim() || "Bạn";
 
     // Phát âm thanh mở phong bì & kích hoạt nhạc nền
     sfx.playOpenEnvelope();
@@ -150,13 +151,13 @@ export default function EnvelopeAnimation({
     // 4. Fade out phong bì và hiện Hero Section (1700ms -> 2500ms)
     setTimeout(() => {
       setPhase("fading");
-      onStartFading?.();
+      onStartFading?.(submittedName);
     }, 1700);
 
     // 5. Hoàn tất (sau 2500ms)
     setTimeout(() => {
       setPhase("done");
-      onComplete(inputName.trim() || "Bạn");
+      onComplete(submittedName);
     }, 6500);
   };
 
