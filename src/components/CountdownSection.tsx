@@ -35,18 +35,11 @@ export default function CountdownSection() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <Award className="w-5 h-5 text-accent animate-pulse-slow" />
-            <span className="text-accent/80 text-xs md:text-sm uppercase tracking-[0.25em] font-body font-light">
-              Kính báo sự kiện
-            </span>
-          </div>
-          
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-gradient tracking-wide mb-2">
-            KHOẢNH KHẮC VINH QUANG
-          </h2>
+      
           <p className="font-script text-4xl text-accent/90 select-none">
             Đếm ngược thời gian
           </p>
+          / </div>
           <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent mt-4" />
         </motion.div>
 

@@ -47,10 +47,12 @@ export default function EnvelopeAnimation({
 }: EnvelopeAnimationProps) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [inputName, setInputName] = useState("");
+  const [nameError, setNameError] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -129,7 +131,15 @@ export default function EnvelopeAnimation({
 
   const startOpening = () => {
     if (phase !== "idle") return;
-    const submittedName = inputName.trim() || "Bạn";
+    const submittedName = inputName.trim();
+
+    if (!submittedName) {
+      setNameError("Vui lòng nhập tên của bạn để mở thiệp");
+      inputRef.current?.focus();
+      return;
+    }
+
+    setNameError("");
 
     // Phát âm thanh mở phong bì & kích hoạt nhạc nền
     sfx.playOpenEnvelope();
@@ -809,14 +819,38 @@ export default function EnvelopeAnimation({
             >
               <div className="relative">
                 <input
+                  ref={inputRef}
                   type="text"
                   placeholder="Nhập tên của bạn..."
                   value={inputName}
-                  onChange={(e) => setInputName(e.target.value)}
-                  className="w-[260px] md:w-[300px] px-4 py-2.5 rounded-xl border border-[#D4AF37]/35 bg-[#0a1320]/80 text-[#FFF099] placeholder-[#D4AF37]/50 text-center text-sm md:text-base focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8),_0_4px_12px_rgba(0,0,0,0.5)] font-serif"
+                  onChange={(e) => {
+                    setInputName(e.target.value);
+                    if (nameError) setNameError("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") startOpening();
+                  }}
+                  required
+                  aria-invalid={Boolean(nameError)}
+                  aria-describedby={nameError ? "guest-name-error" : undefined}
+                  className={`w-[260px] md:w-[300px] px-4 py-2.5 rounded-xl border bg-[#0a1320]/80 text-[#FFF099] placeholder-[#D4AF37]/50 text-center text-sm md:text-base focus:outline-none focus:ring-1 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8),_0_4px_12px_rgba(0,0,0,0.5)] font-serif ${
+                    nameError
+                      ? "border-red-400/80 focus:border-red-300 focus:ring-red-400/50"
+                      : "border-[#D4AF37]/35 focus:border-[#D4AF37] focus:ring-[#D4AF37]/50"
+                  }`}
                 />
                 <div className="absolute inset-0 rounded-xl pointer-events-none border border-transparent shadow-[0_0_10px_rgba(212,175,55,0.1)]" />
               </div>
+              {nameError && (
+                <motion.p
+                  id="guest-name-error"
+                  className="max-w-[260px] md:max-w-[300px] text-center text-[11px] md:text-xs tracking-wide text-red-300 font-serif"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {nameError}
+                </motion.p>
+              )}
               <p className="text-[11px] md:text-xs tracking-wider text-[#D4AF37]/75 font-serif italic">
                 * Nhập tên của bạn và nhấn con dấu để mở thiệp
               </p>

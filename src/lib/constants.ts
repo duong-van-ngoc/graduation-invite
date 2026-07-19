@@ -5,7 +5,7 @@ export const STUDENT = {
   course: "K15",
   university: "Đại học Phenikaa",
   universityShort: "PKA",
-  avatar: "/images/avatar.png",
+  avatar: "/images/21012887.png",
   logo: "/images/logo.png",
 } as const;
 
