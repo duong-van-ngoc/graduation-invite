@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { sfx } from "@/lib/audio";
+import { useDevicePerformance } from "@/hooks/useDevicePerformance";
 
 class Particle {
   x: number;
@@ -170,8 +171,11 @@ class Rocket {
 
 export default function Fireworks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { lowPower, reduceMotion } = useDevicePerformance();
 
   useEffect(() => {
+    if (reduceMotion) return;
+
     const canvas = canvasRef.current as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -180,12 +184,19 @@ export default function Fireworks() {
     let animationFrameId: number;
     const rockets: Rocket[] = [];
     const particles: Particle[] = [];
+    const targetFrameMs = lowPower ? 1000 / 30 : 1000 / 45;
+    let lastRenderAt = 0;
+    let isVisible = document.visibilityState === "visible";
 
     const handleResize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
+    const handleVisibilityChange = () => {
+      isVisible = document.visibilityState === "visible";
+    };
     window.addEventListener("resize", handleResize);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     handleResize();
 
     // Tông màu pháo hoa đa sắc cực kỳ rực rỡ, phát sáng neon siêu nổi bật
@@ -204,8 +215,8 @@ export default function Fireworks() {
 
     const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
-    const showDurationMs = 60000;
-    const frameMs = 1000 / 60;
+    const showDurationMs = lowPower ? 26000 : 42000;
+    const frameMs = targetFrameMs;
     const showDurationFrames = Math.floor(showDurationMs / frameMs);
     const showStartedAt = performance.now();
     let lastChoreographedFrame = -1;
@@ -217,6 +228,9 @@ export default function Fireworks() {
       customSteps?: number,
       forceRainbow = false,
     ) => {
+      const maxRockets = lowPower ? 4 : 8;
+      if (rockets.length >= maxRockets) return;
+
       const rocket = new Rocket(startX, canvas.height, targetX, targetY, getRandomColor(), customSteps);
       if (forceRainbow) {
         rocket.isRainbow = true;
@@ -242,7 +256,13 @@ export default function Fireworks() {
       );
     };
 
-    const animate = () => {
+    const animate = (now = performance.now()) => {
+      if (!isVisible || now - lastRenderAt < targetFrameMs) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+
+      lastRenderAt = now;
       // Clear canvas và giữ nền trong suốt hoàn toàn
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -322,7 +342,7 @@ export default function Fireworks() {
         if (r.isDead) {
           sfx.playExplosion(r.isRainbow);
           // Số lượng hạt tàn pháo tương ứng: Quả cầu vồng siêu to (isRainbow) sẽ bắn ra nhiều hạt hơn hẳn
-          const numParticles = r.isRainbow ? 170 : 95;
+          const numParticles = lowPower ? (r.isRainbow ? 70 : 36) : (r.isRainbow ? 120 : 68);
           for (let p = 0; p < numParticles; p++) {
             // Nếu là quả pháo cầu vồng thì mỗi hạt một màu ngẫu nhiên, nếu không thì nổ đơn sắc (đỏ là đỏ, xanh là xanh)
             const particleColor = r.isRainbow ? getRandomColor() : r.color;
@@ -333,7 +353,7 @@ export default function Fireworks() {
       }
 
       // Giới hạn số lượng hạt tối đa để đảm bảo hiệu năng cực mượt trên di động
-      const maxParticles = window.innerWidth < 768 ? 360 : 760;
+      const maxParticles = lowPower ? 180 : 540;
       while (particles.length > maxParticles) {
         particles.shift();
       }
@@ -356,9 +376,12 @@ export default function Fireworks() {
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [lowPower, reduceMotion]);
+
+  if (reduceMotion) return null;
 
   return (
     <canvas

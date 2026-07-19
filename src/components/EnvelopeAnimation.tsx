@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { sfx } from "@/lib/audio";
+import { useDevicePerformance } from "@/hooks/useDevicePerformance";
 
 // Phase flow:
 // idle             → phong bì xanh đen nổi, hover nghiêng 3D
@@ -41,6 +42,11 @@ const luxuryPaperPattern = {
   backgroundPosition: "0 0, 0 16px, 16px -16px, -16px 0px"
 };
 
+const seededRandom = (seed: number) => {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+};
+
 export default function EnvelopeAnimation({
   onComplete,
   onStartFading,
@@ -49,15 +55,12 @@ export default function EnvelopeAnimation({
   const [inputName, setInputName] = useState("");
   const [nameError, setNameError] = useState("");
   const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { lowPower, reduceMotion } = useDevicePerformance();
 
   useEffect(() => {
-    setMounted(true);
-    setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    setIsMobile(window.innerWidth < 768);
     const handleResize = () => {
       setDimensions({ width: window.innerWidth, height: window.innerHeight });
       setIsMobile(window.innerWidth < 768);
@@ -68,15 +71,15 @@ export default function EnvelopeAnimation({
 
   // Sinh các thuộc tính ngẫu nhiên cố định cho hạt bụi để tránh render lại liên tục (tối ưu hóa hiệu năng)
   const staticParticles = useMemo(() => {
-    const count = isMobile ? 150 : 300;
+    const count = reduceMotion ? 0 : lowPower ? 50 : isMobile ? 90 : 220;
     return Array.from({ length: count }).map((_, i) => {
-      const startX = Math.random() * 100;
-      const size = Math.random() * 2 + 1;
-      const delay = Math.random() * 8;
-      const drift = (Math.random() - 0.5) * 40;
-      const yVariation = Math.random() * 8 - 4;
-      const fallDuration = 3 + Math.random() * 2.5;
-      const normalDuration = 6 + Math.random() * 4;
+      const startX = seededRandom(i + 1) * 100;
+      const size = seededRandom(i + 101) * 2 + 1;
+      const delay = seededRandom(i + 201) * 8;
+      const drift = (seededRandom(i + 301) - 0.5) * 40;
+      const yVariation = seededRandom(i + 401) * 8 - 4;
+      const fallDuration = 3 + seededRandom(i + 501) * 2.5;
+      const normalDuration = 6 + seededRandom(i + 601) * 4;
       return {
         id: i,
         startX,
@@ -88,25 +91,27 @@ export default function EnvelopeAnimation({
         normalDuration,
       };
     });
-  }, [isMobile]);
+  }, [isMobile, lowPower, reduceMotion]);
 
   // Sinh các hạt bụi vàng từ con dấu khi nó tan rã (seal_dissolving)
   const sealParticles = useMemo(() => {
-    const count = isMobile ? 50 : 90;
+    const count = reduceMotion ? 0 : lowPower ? 24 : isMobile ? 38 : 72;
     return Array.from({ length: count }).map((_, i) => {
-      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
-      const velocity = 60 + Math.random() * 140;
-      const size = Math.random() * 3 + 2;
-      const delay = Math.random() * 0.25;
+      const angle = (i / count) * Math.PI * 2 + (seededRandom(i + 701) - 0.5) * 0.4;
+      const velocity = 60 + seededRandom(i + 801) * 140;
+      const size = seededRandom(i + 901) * 3 + 2;
+      const delay = seededRandom(i + 1001) * 0.25;
+      const duration = 1.0 + seededRandom(i + 1101) * 0.5;
       return {
         id: i,
         angle,
         velocity,
         size,
         delay,
+        duration,
       };
     });
-  }, [isMobile]);
+  }, [isMobile, lowPower, reduceMotion]);
 
   // 3D tilt khi hover (chỉ idle)
   const mouseX = useMotionValue(0);
@@ -178,8 +183,6 @@ export default function EnvelopeAnimation({
   const isFading = phase === "fading" || phase === "done";
   const isVisible = phase !== "done";
 
-  if (!mounted) return <div className="fixed inset-0 z-50 bg-[#070C15]" />;
-
   return (
     <AnimatePresence>
       {isVisible && (
@@ -230,7 +233,7 @@ export default function EnvelopeAnimation({
                 let scaleKeyframes: number[];
                 let timesKeyframes: number[];
                 let duration: number;
-                let delay = particle.delay;
+                const delay = particle.delay;
 
                 const drift = particle.drift;
                 let xKeyframes: number[];
@@ -712,7 +715,7 @@ export default function EnvelopeAnimation({
                         scale: [1, 1.2, 0.2],
                       }}
                       transition={{
-                        duration: 1.0 + Math.random() * 0.5,
+                        duration: p.duration,
                         delay: p.delay,
                         ease: "easeOut",
                       }}

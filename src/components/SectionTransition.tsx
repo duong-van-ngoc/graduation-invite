@@ -7,6 +7,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
+import { useDevicePerformance } from "@/hooks/useDevicePerformance";
 
 interface SectionTransitionProps {
   children: ReactNode;
@@ -19,6 +20,7 @@ export function SectionTransition({
 }: SectionTransitionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
+  const { lowPower } = useDevicePerformance();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start 92%", "end 8%"],
@@ -52,6 +54,12 @@ export function SectionTransition({
       style={
         shouldReduceMotion
           ? undefined
+          : lowPower
+            ? {
+                opacity,
+                y,
+                willChange: "transform, opacity",
+              }
           : {
               opacity,
               scale,

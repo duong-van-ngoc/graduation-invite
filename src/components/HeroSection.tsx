@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Cpu, Terminal, GraduationCap } from "lucide-react";
-import ParticlesBackground from "./ParticlesBackground";
 import { STUDENT } from "@/lib/constants";
 import {
   fadeIn,
@@ -11,6 +11,9 @@ import {
   staggerItem,
   scaleIn,
 } from "@/lib/animation";
+
+const ParticlesLayer = dynamic(() => import("./ParticlesLayer"), { ssr: false });
+const ParticlesBackground = dynamic(() => import("./ParticlesBackground"), { ssr: false });
 
 interface HeroSectionProps {
   showParticles?: boolean;
@@ -58,7 +61,11 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Particle Background */}
-      {showParticles && <ParticlesBackground />}
+      {showParticles && (
+        <ParticlesLayer>
+          <ParticlesBackground />
+        </ParticlesLayer>
+      )}
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary to-primary z-[1]" />
@@ -116,9 +123,13 @@ export default function HeroSection({ showParticles = false }: HeroSectionProps)
             className="w-[86%] h-[86%] rounded-full p-[3px] bg-gradient-to-br from-accent via-accent-dark to-transparent glow-accent relative z-10"
           >
             <div className="w-full h-full rounded-full overflow-hidden border-2 border-primary bg-primary-light">
-              <img
+              <Image
                 src={STUDENT.avatar}
                 alt={STUDENT.name}
+                width={160}
+                height={160}
+                sizes="(max-width: 768px) 124px, 138px"
+                priority
                 className="w-full h-full object-cover"
               />
             </div>

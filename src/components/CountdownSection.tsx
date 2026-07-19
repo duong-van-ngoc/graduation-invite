@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useCountdown } from "@/hooks/useCountdown";
 import { EVENT } from "@/lib/constants";
-import { Award } from "lucide-react";
 
 export default function CountdownSection() {
   const { days, hours, minutes, seconds } = useCountdown(EVENT.date);

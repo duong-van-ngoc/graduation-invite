@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { EVENT, generateCalendarUrl } from "@/lib/constants";
-import { MapPin, Navigation, CalendarPlus } from "lucide-react";
+import { EVENT } from "@/lib/constants";
+import { MapPin, Navigation } from "lucide-react";
 
 export default function MapSection() {
   return (

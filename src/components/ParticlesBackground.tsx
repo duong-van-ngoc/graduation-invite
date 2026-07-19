@@ -3,19 +3,24 @@
 import { useMemo } from "react";
 import Particles from "@tsparticles/react";
 import type { ISourceOptions } from "@tsparticles/engine";
+import { useDevicePerformance } from "@/hooks/useDevicePerformance";
 
 export default function ParticlesBackground() {
+  const { lowPower, reduceMotion } = useDevicePerformance();
+
   const options: ISourceOptions = useMemo(
     () => ({
       fullScreen: false,
-      fpsLimit: 60,
+      fpsLimit: lowPower ? 24 : 45,
+      pauseOnBlur: true,
+      pauseOnOutsideViewport: true,
       particles: {
         color: {
           value: ["#FACC15", "#F59E0B", "#FDE68A"],
         },
         move: {
-          enable: true,
-          speed: 0.6,
+          enable: !reduceMotion,
+          speed: lowPower ? 0.25 : 0.45,
           direction: "none" as const,
           random: true,
           straight: false,
@@ -24,7 +29,7 @@ export default function ParticlesBackground() {
           },
         },
         number: {
-          value: 60,
+          value: lowPower ? 18 : 42,
           density: {
             enable: true,
           },
@@ -32,8 +37,8 @@ export default function ParticlesBackground() {
         opacity: {
           value: { min: 0.1, max: 0.5 },
           animation: {
-            enable: true,
-            speed: 0.5,
+            enable: !lowPower && !reduceMotion,
+            speed: 0.35,
             sync: false,
           },
         },
@@ -43,22 +48,22 @@ export default function ParticlesBackground() {
         size: {
           value: { min: 1, max: 3 },
           animation: {
-            enable: true,
-            speed: 1,
+            enable: !lowPower && !reduceMotion,
+            speed: 0.6,
             sync: false,
           },
         },
         links: {
-          enable: true,
+          enable: !lowPower,
           color: "#FACC15",
           distance: 120,
           opacity: 0.12,
           width: 0.8,
         },
       },
-      detectRetina: true,
+      detectRetina: !lowPower,
     }),
-    []
+    [lowPower, reduceMotion]
   );
 
   return (

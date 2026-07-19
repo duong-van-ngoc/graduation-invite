@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import { STUDENT, EVENT } from "@/lib/constants";
 import { Clock, MapPin, GraduationCap, Heart, Scroll } from "lucide-react";
+import { useDevicePerformance } from "@/hooks/useDevicePerformance";
 
 interface InvitationCardProps {
   guestName?: string;
@@ -77,6 +78,7 @@ function GuestNameReveal({ name }: { name: string }) {
 
 export default function InvitationCard({ guestName: propGuestName }: InvitationCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const { lowPower } = useDevicePerformance();
   const [queryGuestName] = useState(() => {
     if (typeof window === "undefined") return "";
 
@@ -108,6 +110,8 @@ export default function InvitationCard({ guestName: propGuestName }: InvitationC
   );
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (lowPower) return;
+
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
 
@@ -272,13 +276,13 @@ export default function InvitationCard({ guestName: propGuestName }: InvitationC
           ref={cardRef}
           className="relative rounded-3xl overflow-hidden cursor-default shadow-[0_30px_70px_rgba(0,0,0,0.85)]"
           style={{
-            rotateX,
-            rotateY,
+            rotateX: lowPower ? undefined : rotateX,
+            rotateY: lowPower ? undefined : rotateY,
             transformStyle: "preserve-3d",
           }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          whileHover={{ scale: 1.02 }}
+          whileHover={lowPower ? undefined : { scale: 1.02 }}
           transition={{ scale: { duration: 0.3 } }}
         >
           {/* Lớp nền phong cách giấy nhám Navy sang trọng mạ vàng */}

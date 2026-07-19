@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
-import ParticlesWrapper from "@/components/ParticlesWrapper";
 import HeroSection from "@/components/HeroSection";
 import EnvelopeAnimation from "@/components/EnvelopeAnimation";
 import {
@@ -66,7 +65,6 @@ export default function HomePage() {
   };
 
   return (
-    <ParticlesWrapper>
       <main className="relative">
         {/* ── NỘI DUNG CHÍNH ──
             Chỉ gắn vào DOM sau khi phong bì bắt đầu mở (envelopeState !== "showing").
@@ -315,6 +313,5 @@ export default function HomePage() {
           </div>
         )}
       </main>
-    </ParticlesWrapper>
   );
 }
