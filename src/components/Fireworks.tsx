@@ -174,8 +174,7 @@ export default function Fireworks() {
   const { lowPower, reduceMotion } = useDevicePerformance();
 
   useEffect(() => {
-    if (reduceMotion) return;
-
+    const tonedDown = lowPower || reduceMotion;
     const canvas = canvasRef.current as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -184,7 +183,7 @@ export default function Fireworks() {
     let animationFrameId: number;
     const rockets: Rocket[] = [];
     const particles: Particle[] = [];
-    const targetFrameMs = lowPower ? 1000 / 30 : 1000 / 45;
+    const targetFrameMs = tonedDown ? 1000 / 30 : 1000 / 45;
     let lastRenderAt = 0;
     let isVisible = document.visibilityState === "visible";
 
@@ -215,9 +214,8 @@ export default function Fireworks() {
 
     const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
-    const showDurationMs = lowPower ? 26000 : 42000;
     const frameMs = targetFrameMs;
-    const showDurationFrames = Math.floor(showDurationMs / frameMs);
+    const showDurationFrames = 6900;
     const showStartedAt = performance.now();
     let lastChoreographedFrame = -1;
 
@@ -228,7 +226,7 @@ export default function Fireworks() {
       customSteps?: number,
       forceRainbow = false,
     ) => {
-      const maxRockets = lowPower ? 4 : 8;
+      const maxRockets = tonedDown ? 4 : 8;
       if (rockets.length >= maxRockets) return;
 
       const rocket = new Rocket(startX, canvas.height, targetX, targetY, getRandomColor(), customSteps);
@@ -256,6 +254,8 @@ export default function Fireworks() {
       );
     };
 
+    launchPair(0.24, tonedDown ? 45 : 62, true);
+
     const animate = (now = performance.now()) => {
       if (!isVisible || now - lastRenderAt < targetFrameMs) {
         animationFrameId = requestAnimationFrame(animate);
@@ -273,63 +273,63 @@ export default function Fireworks() {
         lastChoreographedFrame = spawnTimer;
 
         if (spawnTimer < 900) {
-          if (spawnTimer % 95 === 0) {
+          if (spawnTimer % (tonedDown ? 42 : 52) === 0) {
             const side = Math.floor(spawnTimer / 95) % 2;
             const startX = side === 0 ? canvas.width * 0.08 : canvas.width * 0.92;
             const targetX = side === 0
               ? canvas.width * (0.24 + Math.random() * 0.18)
               : canvas.width * (0.58 + Math.random() * 0.18);
             const targetY = canvas.height * (0.18 + Math.random() * 0.22);
-            launchRocket(startX, targetX, targetY, 120, spawnTimer % 380 === 0);
+            launchRocket(startX, targetX, targetY, tonedDown ? 52 : 68, spawnTimer % 380 === 0);
           }
         } else if (spawnTimer < 2400) {
-          if (spawnTimer % 55 === 0) {
+          if (spawnTimer % (tonedDown ? 30 : 36) === 0) {
             const lane = Math.floor(spawnTimer / 55) % 5;
             const startX = canvas.width * (0.12 + lane * 0.19);
             const targetX = startX + (Math.random() - 0.5) * canvas.width * 0.18;
             const targetY = canvas.height * (0.16 + Math.random() * 0.3);
-            launchRocket(startX, targetX, targetY, 105, lane === 2 && spawnTimer % 220 === 0);
+            launchRocket(startX, targetX, targetY, tonedDown ? 48 : 62, lane === 2 && spawnTimer % 220 === 0);
           }
         } else if (spawnTimer < 3600) {
-          if (spawnTimer % 120 === 0) {
-            launchPair(0.22, 92, true);
+          if (spawnTimer % (tonedDown ? 62 : 78) === 0) {
+            launchPair(0.22, tonedDown ? 46 : 58, true);
           }
-          if (spawnTimer % 40 === 0) {
+          if (spawnTimer % (tonedDown ? 24 : 30) === 0) {
             const center = canvas.width * (0.3 + Math.random() * 0.4);
-            launchRocket(canvas.width * 0.5, center, canvas.height * (0.18 + Math.random() * 0.25), 95);
+            launchRocket(canvas.width * 0.5, center, canvas.height * (0.18 + Math.random() * 0.25), tonedDown ? 44 : 58);
           }
         } else if (spawnTimer < 4800) {
           const waveFrame = spawnTimer - 3600;
-          if (waveFrame % 14 === 0) {
+          if (waveFrame % (tonedDown ? 10 : 12) === 0) {
             const waveIndex = Math.floor(waveFrame / 14) % 42;
             const progress = waveIndex / 41;
             const startX = progress * canvas.width;
             const targetX = startX + (Math.random() - 0.5) * 110;
             const targetY = canvas.height * (0.14 + Math.sin(progress * Math.PI) * 0.18 + Math.random() * 0.08);
-            launchRocket(startX, targetX, targetY, 78, waveIndex % 10 === 0);
+            launchRocket(startX, targetX, targetY, tonedDown ? 40 : 52, waveIndex % 10 === 0);
           }
         } else if (spawnTimer < 6000) {
-          if (spawnTimer % 80 === 0) {
-            launchPair(0.28, 115);
+          if (spawnTimer % (tonedDown ? 44 : 56) === 0) {
+            launchPair(0.28, tonedDown ? 52 : 66);
           }
-          if (spawnTimer % 210 === 0) {
-            launchRocket(canvas.width * 0.5, canvas.width * 0.5, canvas.height * 0.16, 95, true);
+          if (spawnTimer % (tonedDown ? 110 : 150) === 0) {
+            launchRocket(canvas.width * 0.5, canvas.width * 0.5, canvas.height * 0.16, tonedDown ? 44 : 58, true);
           }
         } else if (spawnTimer < 6900) {
           const finaleFrame = spawnTimer - 6000;
-          if (finaleFrame % 16 === 0) {
+          if (finaleFrame % (tonedDown ? 10 : 12) === 0) {
             const progress = (finaleFrame % 480) / 480;
             const startX = progress * canvas.width;
             launchRocket(
               startX,
               startX + (Math.random() - 0.5) * 130,
               canvas.height * (0.12 + Math.random() * 0.32),
-              72,
+              tonedDown ? 38 : 48,
               finaleFrame % 96 === 0,
             );
           }
-          if (finaleFrame % 135 === 0) {
-            launchPair(0.2, 70, true);
+          if (finaleFrame % (tonedDown ? 72 : 96) === 0) {
+            launchPair(0.2, tonedDown ? 36 : 46, true);
           }
         }
       }
@@ -342,7 +342,7 @@ export default function Fireworks() {
         if (r.isDead) {
           sfx.playExplosion(r.isRainbow);
           // Số lượng hạt tàn pháo tương ứng: Quả cầu vồng siêu to (isRainbow) sẽ bắn ra nhiều hạt hơn hẳn
-          const numParticles = lowPower ? (r.isRainbow ? 70 : 36) : (r.isRainbow ? 120 : 68);
+          const numParticles = tonedDown ? (r.isRainbow ? 78 : 42) : (r.isRainbow ? 120 : 68);
           for (let p = 0; p < numParticles; p++) {
             // Nếu là quả pháo cầu vồng thì mỗi hạt một màu ngẫu nhiên, nếu không thì nổ đơn sắc (đỏ là đỏ, xanh là xanh)
             const particleColor = r.isRainbow ? getRandomColor() : r.color;
@@ -353,7 +353,7 @@ export default function Fireworks() {
       }
 
       // Giới hạn số lượng hạt tối đa để đảm bảo hiệu năng cực mượt trên di động
-      const maxParticles = lowPower ? 180 : 540;
+      const maxParticles = tonedDown ? 220 : 540;
       while (particles.length > maxParticles) {
         particles.shift();
       }
@@ -381,12 +381,10 @@ export default function Fireworks() {
     };
   }, [lowPower, reduceMotion]);
 
-  if (reduceMotion) return null;
-
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none z-10"
+      className="fixed inset-0 w-full h-full pointer-events-none z-30"
     />
   );
 }

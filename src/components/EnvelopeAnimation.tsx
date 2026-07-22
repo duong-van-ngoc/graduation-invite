@@ -65,6 +65,7 @@ export default function EnvelopeAnimation({
       setDimensions({ width: window.innerWidth, height: window.innerHeight });
       setIsMobile(window.innerWidth < 768);
     };
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -272,10 +273,10 @@ export default function EnvelopeAnimation({
                     key={particle.id}
                     className="absolute rounded-full"
                     style={{
-                      width: size,
-                      height: size,
-                      left: `${startX}%`,
-                      top: 0,
+                      width: `${size.toFixed(3)}px`,
+                      height: `${size.toFixed(3)}px`,
+                      left: `${startX.toFixed(3)}%`,
+                      top: "0px",
                       background:
                         "radial-gradient(circle, rgba(255,248,220,1) 0%, rgba(255,220,120,0.85) 50%, transparent 100%)",
                       boxShadow: "0 0 4px rgba(255,220,120,0.8), 0 0 10px rgba(255,220,120,0.35)",
@@ -700,10 +701,10 @@ export default function EnvelopeAnimation({
                       key={p.id}
                       className="absolute rounded-full"
                       style={{
-                        width: p.size,
-                        height: p.size,
-                        left: 0,
-                        top: 0,
+                        width: `${p.size.toFixed(3)}px`,
+                        height: `${p.size.toFixed(3)}px`,
+                        left: "0px",
+                        top: "0px",
                         background: "radial-gradient(circle, #FFFFFF 0%, #FFEAA7 50%, #D4AF37 100%)",
                         boxShadow: "0 0 8px #FFD700, 0 0 15px #FF8C00",
                       }}

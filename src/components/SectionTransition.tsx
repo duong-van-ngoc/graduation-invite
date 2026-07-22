@@ -20,7 +20,7 @@ export function SectionTransition({
 }: SectionTransitionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
-  const { lowPower } = useDevicePerformance();
+  const { isMobile, lowPower } = useDevicePerformance();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start 92%", "end 8%"],
@@ -41,20 +41,15 @@ export function SectionTransition({
     [0, 0.16, 0.78, 1],
     [28, 0, 0, -20],
   );
-  const filter = useTransform(
-    scrollYProgress,
-    [0, 0.16, 0.78, 1],
-    ["blur(8px)", "blur(0px)", "blur(0px)", "blur(6px)"],
-  );
 
   return (
     <motion.div
       ref={sectionRef}
-      className={`relative transform-gpu ${className}`}
+      className={`mobile-section-transition relative transform-gpu ${className}`}
       style={
         shouldReduceMotion
           ? undefined
-          : lowPower
+          : lowPower || isMobile
             ? {
                 opacity,
                 y,
@@ -64,8 +59,7 @@ export function SectionTransition({
               opacity,
               scale,
               y,
-              filter,
-              willChange: "transform, opacity, filter",
+              willChange: "transform, opacity",
             }
       }
     >
