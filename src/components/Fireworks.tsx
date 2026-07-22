@@ -37,10 +37,12 @@ class Particle {
     this.trail = [];
   }
 
-  update() {
-    this.trail.push({ x: this.x, y: this.y });
-    if (this.trail.length > 5) {
-      this.trail.shift();
+  update(lightweight = false) {
+    if (!lightweight) {
+      this.trail.push({ x: this.x, y: this.y });
+      if (this.trail.length > 4) {
+        this.trail.shift();
+      }
     }
     this.vx *= this.friction;
     // Thêm lực gió thổi nhẹ dạt ngang sang phải (ảnh hưởng lớn hơn khi hạt tàn dần)
@@ -54,8 +56,7 @@ class Particle {
     this.alpha -= this.decay;
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.save();
+  draw(ctx: CanvasRenderingContext2D, lightweight = false) {
 
     // Tạo hiệu ứng nhấp nháy lấp lánh (shimmer) khi hạt tàn dần
     let displayAlpha = this.alpha;
@@ -65,20 +66,23 @@ class Particle {
     }
 
     // Vẽ quầng sáng tỏa nhẹ (bloom glow)
-    ctx.globalAlpha = displayAlpha * 0.25;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size * 2.2, 0, Math.PI * 2);
-    ctx.fill();
+    if (!lightweight) {
+      ctx.globalAlpha = displayAlpha * 0.22;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 2.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Vẽ lõi hạt pháo sáng
     ctx.globalAlpha = displayAlpha;
+    ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
 
     // Vẽ đuôi hạt pháo bay
-    if (this.trail.length > 1) {
+    if (!lightweight && this.trail.length > 1) {
       ctx.beginPath();
       ctx.moveTo(this.trail[0].x, this.trail[0].y);
       for (let i = 1; i < this.trail.length; i++) {
@@ -88,7 +92,6 @@ class Particle {
       ctx.lineWidth = this.size * 0.6;
       ctx.stroke();
     }
-    ctx.restore();
   }
 }
 
@@ -122,9 +125,10 @@ class Rocket {
     this.trail = [];
   }
 
-  update() {
+  update(lightweight = false) {
     this.trail.push({ x: this.x, y: this.y });
-    if (this.trail.length > 10) {
+    const maxTrail = lightweight ? 5 : 9;
+    if (this.trail.length > maxTrail) {
       this.trail.shift();
     }
     this.x += this.vx;
@@ -138,18 +142,21 @@ class Rocket {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(ctx: CanvasRenderingContext2D, lightweight = false) {
     ctx.save();
 
     // Vẽ quầng sáng tỏa đầu quả đạn pháo
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, 4.5, 0, Math.PI * 2);
-    ctx.fill();
+    if (!lightweight) {
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Vẽ nhân quả đạn pháo
     ctx.globalAlpha = 1.0;
+    ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
     ctx.fill();
@@ -183,7 +190,7 @@ export default function Fireworks() {
     let animationFrameId: number;
     const rockets: Rocket[] = [];
     const particles: Particle[] = [];
-    const targetFrameMs = tonedDown ? 1000 / 30 : 1000 / 45;
+    const targetFrameMs = tonedDown ? 1000 / 55 : 1000 / 60;
     let lastRenderAt = 0;
     let isVisible = document.visibilityState === "visible";
 
@@ -218,6 +225,7 @@ export default function Fireworks() {
     const showDurationFrames = 6900;
     const showStartedAt = performance.now();
     let lastChoreographedFrame = -1;
+    let lastExplosionSfxAt = 0;
 
     const launchRocket = (
       startX: number,
@@ -336,13 +344,16 @@ export default function Fireworks() {
       // Cập nhật & Vẽ đạn pháo
       for (let i = rockets.length - 1; i >= 0; i--) {
         const r = rockets[i];
-        r.update();
-        r.draw(ctx);
+        r.update(tonedDown);
+        r.draw(ctx, tonedDown);
 
         if (r.isDead) {
-          sfx.playExplosion(r.isRainbow);
+          if (now - lastExplosionSfxAt > 140) {
+            sfx.playExplosion(r.isRainbow);
+            lastExplosionSfxAt = now;
+          }
           // Số lượng hạt tàn pháo tương ứng: Quả cầu vồng siêu to (isRainbow) sẽ bắn ra nhiều hạt hơn hẳn
-          const numParticles = tonedDown ? (r.isRainbow ? 78 : 42) : (r.isRainbow ? 120 : 68);
+          const numParticles = tonedDown ? (r.isRainbow ? 54 : 30) : (r.isRainbow ? 96 : 54);
           for (let p = 0; p < numParticles; p++) {
             // Nếu là quả pháo cầu vồng thì mỗi hạt một màu ngẫu nhiên, nếu không thì nổ đơn sắc (đỏ là đỏ, xanh là xanh)
             const particleColor = r.isRainbow ? getRandomColor() : r.color;
@@ -353,7 +364,7 @@ export default function Fireworks() {
       }
 
       // Giới hạn số lượng hạt tối đa để đảm bảo hiệu năng cực mượt trên di động
-      const maxParticles = tonedDown ? 220 : 540;
+      const maxParticles = tonedDown ? 150 : 420;
       while (particles.length > maxParticles) {
         particles.shift();
       }
@@ -361,8 +372,8 @@ export default function Fireworks() {
       // Cập nhật & Vẽ các hạt tàn pháo hoa
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
-        p.update();
-        p.draw(ctx);
+        p.update(tonedDown);
+        p.draw(ctx, tonedDown);
 
         if (p.alpha <= 0) {
           particles.splice(i, 1);
